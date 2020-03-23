@@ -1,4 +1,4 @@
-﻿namespace Libmirobot
+﻿namespace Libmirobot.Core
 {
     public interface ISixAxisRobot
     {
