@@ -1,5 +1,7 @@
 # libmirobot
 
+![.NET Core](https://github.com/maxkde/libmirobot/workflows/.NET%20Core/badge.svg)
+
 ## Description
 Library to generate g code to control the [WLKATA Mirobot](http://www.wlkata.com/site/index.html). No official project and not affiliated to WLKATA at all.
 
