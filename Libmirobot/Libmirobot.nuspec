@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <!-- Required elements-->
+        <id>libmirobot</id>
+        <version>0.1.0.0</version>
+        <description>Inofficial library to control a WLKATA Mirobot. Not affiliated to WLKATA in any way.</description>
+        <authors>Max</authors>
+
+        <!-- Optional elements -->
+        <!-- ... -->
+    </metadata>
+        <projectUrl>https://github.com/maxkde/libmirobot</projectUrl>
+        <license type="expression">MIT</license>
+        <!-- Optional 'files' node -->
+</package>
