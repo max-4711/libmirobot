@@ -5,6 +5,9 @@ Library to generate g code to control the [WLKATA Mirobot](http://www.wlkata.com
 
 G Code protol over a serial connection is being used; official specification can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html).
 
+## License
+MIT License
+
 ## Example Usage
 ```
 var comPorts = robotConfigurator.GetAvailableComports();
@@ -18,7 +21,7 @@ using (var configuredRobot = robotConfigurator.PreconfigureRobot(comPorts[0]))
 ## Documentation / available methods for controlling the robot
 Coming soon...
 
-## Requirements
-- C# 8.0
-- .Net Standard 2.1 (-> not limited to windows!)
-- Driver for the robot (can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html))
+## Technical remarks
+- Code uses C# 8.0
+- Compile target is .Net Standard 2.1, which means it is not limited to Windows!
+- On Windows, driver for the robot is needed (can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html))

@@ -1,4 +1,5 @@
 ﻿using Libmirobot.GCode.InstructionParameters;
+using System.Globalization;
 
 namespace Libmirobot.GCode.Instructions
 {
@@ -32,34 +33,34 @@ namespace Libmirobot.GCode.Instructions
                 var colonSeparatedStrings = returnValue.Split(':');
 
                 var anglesCommaSeparated = colonSeparatedStrings[1].Split(',');
-                var angle1 = double.Parse(anglesCommaSeparated[0]);
-                var angle2 = double.Parse(anglesCommaSeparated[1]);
-                var angle3 = double.Parse(anglesCommaSeparated[2]);
+                var angle1 = double.Parse(anglesCommaSeparated[0], CultureInfo.InvariantCulture.NumberFormat);
+                var angle2 = double.Parse(anglesCommaSeparated[1], CultureInfo.InvariantCulture.NumberFormat);
+                var angle3 = double.Parse(anglesCommaSeparated[2], CultureInfo.InvariantCulture.NumberFormat);
                 double? slideRail = null;
                 double angle4;
                 double angle5;
                 double angle6;
                 if (anglesCommaSeparated.Length == 8)
                 {
-                    slideRail = double.Parse(anglesCommaSeparated[3]);
-                    angle4 = double.Parse(anglesCommaSeparated[4]);
-                    angle5 = double.Parse(anglesCommaSeparated[5]);
-                    angle6 = double.Parse(anglesCommaSeparated[6]);
+                    slideRail = double.Parse(anglesCommaSeparated[3], CultureInfo.InvariantCulture.NumberFormat);
+                    angle4 = double.Parse(anglesCommaSeparated[4], CultureInfo.InvariantCulture.NumberFormat);
+                    angle5 = double.Parse(anglesCommaSeparated[5], CultureInfo.InvariantCulture.NumberFormat);
+                    angle6 = double.Parse(anglesCommaSeparated[6], CultureInfo.InvariantCulture.NumberFormat);
                 }
                 else
                 {
-                    angle4 = double.Parse(anglesCommaSeparated[3]);
-                    angle5 = double.Parse(anglesCommaSeparated[4]);
-                    angle6 = double.Parse(anglesCommaSeparated[5]);
+                    angle4 = double.Parse(anglesCommaSeparated[3], CultureInfo.InvariantCulture.NumberFormat);
+                    angle5 = double.Parse(anglesCommaSeparated[4], CultureInfo.InvariantCulture.NumberFormat);
+                    angle6 = double.Parse(anglesCommaSeparated[5], CultureInfo.InvariantCulture.NumberFormat);
                 }
 
                 var cartesianCommaSeparated = colonSeparatedStrings[2].Split(',');
-                var xCoordinate = double.Parse(cartesianCommaSeparated[0]);
-                var yCoordinate = double.Parse(cartesianCommaSeparated[1]);
-                var zCoordinate = double.Parse(cartesianCommaSeparated[2]);
-                var xRotation = double.Parse(cartesianCommaSeparated[3]);
-                var yRotation = double.Parse(cartesianCommaSeparated[4]);
-                var zRotation = double.Parse(cartesianCommaSeparated[5]);
+                var xCoordinate = double.Parse(cartesianCommaSeparated[0], CultureInfo.InvariantCulture.NumberFormat);
+                var yCoordinate = double.Parse(cartesianCommaSeparated[1], CultureInfo.InvariantCulture.NumberFormat);
+                var zCoordinate = double.Parse(cartesianCommaSeparated[2], CultureInfo.InvariantCulture.NumberFormat);
+                var xRotation = double.Parse(cartesianCommaSeparated[3], CultureInfo.InvariantCulture.NumberFormat);
+                var yRotation = double.Parse(cartesianCommaSeparated[4], CultureInfo.InvariantCulture.NumberFormat);
+                var zRotation = double.Parse(cartesianCommaSeparated[5], CultureInfo.InvariantCulture.NumberFormat);
 
                 var pumpPwmCommaSeparated = colonSeparatedStrings[3].Split(',');
                 var pumpPwm = int.Parse(pumpPwmCommaSeparated[0]);
