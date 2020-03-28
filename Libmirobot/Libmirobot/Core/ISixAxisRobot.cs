@@ -1,9 +1,22 @@
 ﻿using Libmirobot.GCode;
+using Libmirobot.IO;
+using System;
 
 namespace Libmirobot.Core
 {
     public interface ISixAxisRobot
     {
+        /// <summary>
+        /// Event being fired, when the robot issues a new command, which now has to be transferred to the hardware.
+        /// </summary>
+        event EventHandler<InstructionSentEventArgs> InstructionSent;
+
+        /// <summary>
+        /// Configures the robot to receive messages from the hardware via the serial connection.
+        /// </summary>
+        /// <param name="serialConnection">Serial connection which the robot will use to receive commands from</param>
+        void AttachToSerialConnection(ISerialConnection serialConnection);
+
         /// <summary>
         /// Instructs the robot to report its current position.
         /// </summary>

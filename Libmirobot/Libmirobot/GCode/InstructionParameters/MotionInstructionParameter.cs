@@ -3,34 +3,40 @@
     public class MotionInstructionParameter
     {
         /// <summary>
-        /// Specifies a value for the x axis - depending on the instruction either an increment or a coordinate.
+        /// First parameter to specify the target position or increment of the motion.
         /// </summary>
-        public float XAxisValue { get; set; }
+        /// <remarks>Typically used for the x axis or axis 1.</remarks>
+        public float PositioningParameter1 { get; set; }
 
         /// <summary>
-        /// Specifies a value for the y axis - depending on the instruction either an increment or a coordinate.
+        /// Second parameter to specify the target position or increment of the motion.
         /// </summary>
-        public float YAxisValue { get; set; }
+        /// <remarks>Typically used for the y axis or axis 2.</remarks>
+        public float PositioningParameter2 { get; set; }
 
         /// <summary>
-        /// Specifies a value for the z axis - depending on the instruction either an increment or a coordinate.
+        /// Third parameter to specify the target position or increment of the motion.
         /// </summary>
-        public float ZAxisValue { get; set; }
+        /// <remarks>Typically used for the z axis or axis 3.</remarks>
+        public float PositioningParameter3 { get; set; }
 
         /// <summary>
-        /// Specifies a value for the roll angle - depending on the instruction either an increment or an absolute angle
+        /// Fourth parameter to specify the target position or increment of the motion.
         /// </summary>
-        public float XRotationValue { get; set; }
+        /// <remarks>Typically used for the roll angle (rotation around x axis) or axis 4.</remarks>
+        public float PositioningParameter4 { get; set; }
 
         /// <summary>
-        /// Specifies a value for the pitch angle - depending on the instruction either an increment or an absolute angle
+        /// Fifth parameter to specify the target position or increment of the motion.
         /// </summary>
-        public float YRotationValue { get; set; }
+        /// <remarks>Typically used for the pitch angle (rotation around y axis) or axis 5.</remarks>
+        public float PositioningParameter5 { get; set; }
 
         /// <summary>
-        /// Specifies a value for the yaw angle - depending on the instruction either an increment or an absolute angle
+        /// Sixth parameter to specify the target position or increment of the motion.
         /// </summary>
-        public float ZRotationValue { get; set; }
+        /// <remarks>Typically used for the yaw angle (rotation around z axis) or axis 6.</remarks>
+        public float PositioningParameter6 { get; set; }
 
         /// <summary>
         /// Desired speed of the motion
