@@ -23,8 +23,6 @@ jobs:
     - name: Test
       run: dotnet test Libmirobot/Libmirobot.sln --no-restore --verbosity normal
     - name: Build NuGet package
-            run: |  
-              cd Libmirobot
-              dotnet pack -c Release -o out
+            run: cd Libmirobot && dotnet pack -c Release -o out
     - name: Push generated package to GitHub registry
         run: dotnet nuget push ./Libmirobot/out/*.nupkg --skip-duplicate --no-symbols true
