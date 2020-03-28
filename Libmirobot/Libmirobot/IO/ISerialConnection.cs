@@ -3,9 +3,11 @@ using System;
 
 namespace Libmirobot.IO
 {
-    public interface ISerialConnection
+    public interface ISerialConnection : IDisposable
     {
         event EventHandler<RobotTelegram> TelegramReceived;
+
+        event EventHandler<RobotTelegram> TelegramSent;
 
         void AttachRobot(ISixAxisRobot robot);
 

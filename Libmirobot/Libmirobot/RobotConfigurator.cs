@@ -1,25 +1,31 @@
 ﻿using Libmirobot.Core;
 using Libmirobot.IO;
 using System;
+using System.Collections.Generic;
 
 namespace Libmirobot
 {
-    public class RobotFactory
+    public class RobotConfigurator
     {
         //Not a real factory yet; maybe adding that later
         public static PreconfiguredRobot PreconfigureRobot(string comPortName)
         {
             var robot = SixAxisMirobot.CreateNew();
-            var telegramPort = new SerialConnection(comPortName);
+            var telegramPort = new SerialConnection(comPortName, true);
 
             robot.AttachConnection(telegramPort);
             telegramPort.AttachRobot(robot);
 
             return new PreconfiguredRobot(robot, telegramPort);
         }
+
+        public static IList<string> GetAvailableComports()
+        {
+            return SerialConnection.GetAvailablePortNames();
+        }
     }
 
-    public class PreconfiguredRobot
+    public class PreconfiguredRobot : IDisposable
     {
         internal PreconfiguredRobot(ISixAxisRobot robot, ISerialConnection telegramPort)
         {
@@ -30,22 +36,27 @@ namespace Libmirobot
         public ISixAxisRobot Robot { get; }
         public ISerialConnection TelegramPort { get; }
 
-        public event EventHandler<RobotTelegram> InboundTelegram
+        public event EventHandler<RobotTelegram> TelegramReceived
         {
             add { this.TelegramPort.TelegramReceived += value; }
             remove { this.TelegramPort.TelegramReceived -= value; }
         }
 
-        public event EventHandler<RobotTelegram> OutboundTelegram
+        public event EventHandler<RobotTelegram> TelegramSent
         {
-            add { this.Robot.InstructionSent += value; }
-            remove { this.Robot.InstructionSent -= value; }
+            add { this.TelegramPort.TelegramSent += value; }
+            remove { this.TelegramPort.TelegramSent -= value; }
         }
 
         public event EventHandler<RobotStateChangedEventArgs> RobotStateChanged
         {
-            add { this.RobotStateChanged += value; }
-            remove { this.RobotStateChanged -= value; }
+            add { this.Robot.RobotStateChanged += value; }
+            remove { this.Robot.RobotStateChanged -= value; }
+        }
+
+        public void Dispose()
+        {
+            this.TelegramPort.Dispose();
         }
     }
 }
