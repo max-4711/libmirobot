@@ -9,6 +9,8 @@ namespace Libmirobot.GCode.Instructions
     /// <remarks>Instruction no. 1 as specified in protocol specification</remarks>
     public class ObtainStatusInstruction : IGCodeInstruction<EmptyInstructionParameter, StatusReturnValue>
     {
+        public string UniqueIdentifier => "GET_STATUS_ALL";
+
         public string GenerateGCode(EmptyInstructionParameter inputValue)
         {
             return "?";
