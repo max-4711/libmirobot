@@ -12,6 +12,16 @@ namespace Libmirobot.Core
         event EventHandler<InstructionSentEventArgs> InstructionSent;
 
         /// <summary>
+        /// Event being fired, when the robot received a status update from the hardware.
+        /// </summary>
+        event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
+
+        /// <summary>
+        /// If true, the hardware will automatically be requested to send its current state after executing a state chaning instruction (motion, homing or changes of gripper or pneumatic pump).
+        /// </summary>
+        bool AutoSendStatusUpdateRequests { get; set; }
+
+        /// <summary>
         /// Configures the robot to receive messages from the hardware via the serial connection.
         /// </summary>
         /// <param name="serialConnection">Serial connection which the robot will use to receive commands from</param>
@@ -59,7 +69,7 @@ namespace Libmirobot.Core
         /// <param name="axis6">Target angle for axis 6</param>
         /// <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min</param>
         /// <param name="movementMode">Specifiecs, if the axes coordinate their motion with each other</param>
-        void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed, MovementMode movementMode);
+        void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed);
 
         /// <summary>
         /// Instructs the robot to increment (or decrement, if negative numbers provided) his axis angles by the specified values using the specified movement mode.
@@ -72,7 +82,7 @@ namespace Libmirobot.Core
         /// <param name="axis6">Increment/Decrement for axis 6</param>
         /// <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min</param>
         /// <param name="movementMode">Specifiecs, if the axes coordinate their motion with each other</param>
-        void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed, MovementMode movementMode);
+        void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed);
 
         /// <summary>
         /// Instructs the robot to unlock all axes directly, even if no homing operation was executed.

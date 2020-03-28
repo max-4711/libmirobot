@@ -1,5 +1,6 @@
 ﻿using Libmirobot.GCode;
 using Libmirobot.GCode.InstructionParameters;
+using Libmirobot.GCode.Instructions;
 using Libmirobot.IO;
 using System;
 using System.Linq;
@@ -8,9 +9,12 @@ namespace Libmirobot.Core
 {
     public class SixAxisMirobot : ISixAxisRobot
     {
-        private readonly SixAxisRobotSetupParameters setupParameters;
-
         public event EventHandler<InstructionSentEventArgs> InstructionSent;
+        public event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
+
+        public bool AutoSendStatusUpdateRequests { get; set; } = false;
+
+        private readonly SixAxisRobotSetupParameters setupParameters;
 
         private SixAxisMirobot(SixAxisRobotSetupParameters setupParameters)
         {
@@ -26,9 +30,9 @@ namespace Libmirobot.Core
             this.SendInstruction(instructionCode, homingInstruction.UniqueIdentifier);
         }
 
-        public void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed, MovementMode movementMode)
+        public void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed)
         {
-            var axisIncrementInstruction = movementMode == MovementMode.Linear ? this.setupParameters.AngleRelativeLinMoveInstruction : this.setupParameters.AngleRelativePtpMoveInstruction;
+            var axisIncrementInstruction = this.setupParameters.AngleRelativeMoveInstruction;
 
             var instructionCode = axisIncrementInstruction.GenerateGCode(new MotionInstructionParameter 
             {
@@ -62,9 +66,9 @@ namespace Libmirobot.Core
             this.SendInstruction(instructionCode, cartesianIncrementInstruction.UniqueIdentifier);
         }
 
-        public void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed, MovementMode movementMode)
+        public void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed)
         {
-            var axisMoveInstruction = movementMode == MovementMode.Linear ? this.setupParameters.AngleAbsoluteLinMoveInstruction : this.setupParameters.AngleAbsolutePtpMoveInstrcution;
+            var axisMoveInstruction = this.setupParameters.AngleAbsoluteMoveInstrcution;
 
             var instructionCode = axisMoveInstruction.GenerateGCode(new MotionInstructionParameter
             {
@@ -154,6 +158,20 @@ namespace Libmirobot.Core
         {
             return new SixAxisMirobot(new SixAxisRobotSetupParameters
             {
+                AngleAbsoluteMoveInstrcution = new AngleModeAbsoluteMotionInstruction(),
+                AngleRelativeMoveInstruction = new AngleModeIncrementalMotionInstruction(),
+                CartesianAbsoluteLinMoveInstruction = new CartesianModeAbsoluteLinMotionInstruction(),
+                CartesianAbsolutePtpMoveInstrcution = new CartesianModeAbsolutePtpMotionInstruction(),
+                CartesianRelativeLinMoveInstruction = new CartesianModeRelativeLinMotionInstruction(),
+                CartesianRelativePtpMoveInstruction = new CartesianModeRelativePtpMotionInstruction(),
+                RequestPositionInstruction = new ObtainStatusInstruction(),
+                SequentialHomingInstruction = new HomingSequentialInstruction(),
+                SimultaneousHomingInstruction = new HomingSimultaneousInstruction(),
+                SetAirPumpPwmInstruction = new SwitchAirPumpInstruction(),
+                SetGripperPwmInstruction = new SwitchGripperInstruction(),
+                SetAxesHardLimitInstruction = new ToggleAxesHardLimitInstruction(),
+                SetAxesSoftLimitInstruction = new ToggleAxesSoftLimitInstruction(),
+                UnlockAxesInstruction = new UnlockAxesInstruction()
             });
         }
 
@@ -181,7 +199,27 @@ namespace Libmirobot.Core
 
         private void ProcessRobotStateUpdate(RobotStatusUpdate robotStatusUpdate)
         {
-            //TODO
+            if (!robotStatusUpdate.HasData)
+                return;
+
+            this.RobotStateChanged?.Invoke(this, new RobotStateChangedEventArgs 
+            {
+                Axis1Angle = robotStatusUpdate.Axis1Angle ?? 0,
+                Axis2Angle = robotStatusUpdate.Axis2Angle ?? 0,
+                Axis3Angle = robotStatusUpdate.Axis3Angle ?? 0,
+                Axis4Angle = robotStatusUpdate.Axis4Angle ?? 0,
+                Axis5Angle = robotStatusUpdate.Axis5Angle ?? 0,
+                Axis6Angle = robotStatusUpdate.Axis6Angle ?? 0,
+                ExternalSlideRail = robotStatusUpdate.ExternalSlideRail ?? 0,
+                GripperPwm = robotStatusUpdate.Pwm2 ?? 0,
+                PneumaticPumpPwm = robotStatusUpdate.Pwm1 ?? 0,
+                XCoordinate = robotStatusUpdate.XCoordinate ?? 0,
+                YCoordinate = robotStatusUpdate.YCoordinate ?? 0,
+                ZCoordinate = robotStatusUpdate.ZCoordinate ?? 0,
+                XRotation = robotStatusUpdate.XRotation ?? 0,
+                YRotation = robotStatusUpdate.YRotation ?? 0,
+                ZRotation = robotStatusUpdate.ZRotation ?? 0
+            });
         }
     }
 }

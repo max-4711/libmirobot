@@ -13,10 +13,8 @@ namespace Libmirobot.Core
         public IGCodeInstruction<MotionInstructionParameter> CartesianRelativePtpMoveInstruction { get; set; }
         public IGCodeInstruction<MotionInstructionParameter> CartesianRelativeLinMoveInstruction { get; set; }
 
-        public IGCodeInstruction<MotionInstructionParameter> AngleAbsolutePtpMoveInstrcution { get; set; }
-        public IGCodeInstruction<MotionInstructionParameter> AngleAbsoluteLinMoveInstruction { get; set; }
-        public IGCodeInstruction<MotionInstructionParameter> AngleRelativePtpMoveInstruction { get; set; }
-        public IGCodeInstruction<MotionInstructionParameter> AngleRelativeLinMoveInstruction { get; set; }
+        public IGCodeInstruction<MotionInstructionParameter> AngleAbsoluteMoveInstrcution { get; set; }
+        public IGCodeInstruction<MotionInstructionParameter> AngleRelativeMoveInstruction { get; set; }
 
         public IGCodeInstruction<BinaryInstructionParameter> SetAxesSoftLimitInstruction { get; set; }
         public IGCodeInstruction<BinaryInstructionParameter> SetAxesHardLimitInstruction { get; set; }
@@ -36,10 +34,8 @@ namespace Libmirobot.Core
             this.CartesianAbsoluteLinMoveInstruction,
             this.CartesianRelativePtpMoveInstruction,
             this.CartesianRelativeLinMoveInstruction,
-            this.AngleAbsolutePtpMoveInstrcution,
-            this.AngleAbsoluteLinMoveInstruction,
-            this.AngleRelativePtpMoveInstruction,
-            this.AngleRelativeLinMoveInstruction,
+            this.AngleAbsoluteMoveInstrcution,
+            this.AngleRelativeMoveInstruction,
             this.SetAxesSoftLimitInstruction,
             this.SetAxesHardLimitInstruction,
             this.UnlockAxesInstruction,
