@@ -16,6 +16,8 @@ namespace Libmirobot
             robot.AttachConnection(telegramPort);
             telegramPort.AttachRobot(robot);
 
+            telegramPort.Connect();
+
             return new PreconfiguredRobot(robot, telegramPort);
         }
 
