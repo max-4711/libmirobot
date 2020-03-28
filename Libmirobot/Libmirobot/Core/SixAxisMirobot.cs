@@ -2,6 +2,7 @@
 using Libmirobot.GCode.InstructionParameters;
 using Libmirobot.IO;
 using System;
+using System.Linq;
 
 namespace Libmirobot.Core
 {
@@ -164,12 +165,23 @@ namespace Libmirobot.Core
 
         private void SerialConnection_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            throw new NotImplementedException();
+            var responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == e.InstructionIdentifier);
+            if (responsedInstruction == null)
+                return;
+
+            var updatedRobotState = responsedInstruction.ProcessResponse(e.ReceivedMessage);
+
+            this.ProcessRobotStateUpdate(updatedRobotState);
         }
 
         private void SendInstruction(string instruction, string instructionIdentifier)
         {
             this.InstructionSent?.Invoke(this, new InstructionSentEventArgs { Instruction = instruction, InstructionIdentifier = instructionIdentifier });
+        }
+
+        private void ProcessRobotStateUpdate(RobotStatusUpdate robotStatusUpdate)
+        {
+            //TODO
         }
     }
 }

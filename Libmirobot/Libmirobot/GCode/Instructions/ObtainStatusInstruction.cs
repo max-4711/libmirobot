@@ -1,5 +1,4 @@
 ﻿using Libmirobot.GCode.InstructionParameters;
-using Libmirobot.GCode.ReturnValues;
 
 namespace Libmirobot.GCode.Instructions
 {
@@ -7,7 +6,7 @@ namespace Libmirobot.GCode.Instructions
     /// Obtains the status and position information of the current manipulator
     /// </summary>
     /// <remarks>Instruction no. 1 as specified in protocol specification</remarks>
-    public class ObtainStatusInstruction : IGCodeInstruction<EmptyInstructionParameter, StatusReturnValue>
+    public class ObtainStatusInstruction : IGCodeInstruction<EmptyInstructionParameter>
     {
         public string UniqueIdentifier => "GET_STATUS_ALL";
 
@@ -16,7 +15,7 @@ namespace Libmirobot.GCode.Instructions
             return "?";
         }
 
-        public StatusReturnValue ProcessResponse(string returnValue)
+        public RobotStatusUpdate ProcessResponse(string returnValue)
         {
             throw new System.NotImplementedException();
         }

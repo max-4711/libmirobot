@@ -2,7 +2,7 @@
 
 namespace Libmirobot.GCode.Instructions
 {
-    public abstract class ParameterlessInstructionBase<TReturn> : IGCodeInstruction<EmptyInstructionParameter, TReturn>
+    public abstract class ParameterlessInstructionBase : IGCodeInstruction<EmptyInstructionParameter>
     {
         public abstract string UniqueIdentifier { get; set; }
 
@@ -13,6 +13,6 @@ namespace Libmirobot.GCode.Instructions
 
         public abstract string GenerateGCode(EmptyInstructionParameter inputValue);
 
-        public abstract TReturn ProcessResponse(string returnValue);
+        public abstract RobotStatusUpdate ProcessResponse(string returnValue);
     }
 }

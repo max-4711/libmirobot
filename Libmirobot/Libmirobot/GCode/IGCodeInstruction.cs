@@ -1,11 +1,14 @@
 ﻿namespace Libmirobot.GCode
 {
-    public interface IGCodeInstruction<TInput, TReturn>
+    public interface IGCodeInstruction
     {
         string UniqueIdentifier { get; }
 
-        string GenerateGCode(TInput inputValue);
+        RobotStatusUpdate ProcessResponse(string returnValue);
+    }
 
-        TReturn ProcessResponse(string returnValue);
+    public interface IGCodeInstruction<TInput> : IGCodeInstruction
+    {
+        string GenerateGCode(TInput inputValue);        
     }
 }
