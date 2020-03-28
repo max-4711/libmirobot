@@ -9,7 +9,7 @@ namespace Libmirobot.Core
 {
     public class SixAxisMirobot : ISixAxisRobot
     {
-        public event EventHandler<InstructionSentEventArgs> InstructionSent;
+        public event EventHandler<RobotTelegram> InstructionSent;
         public event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
 
         public bool AutoSendStatusUpdateRequests { get; set; } = false;
@@ -175,26 +175,26 @@ namespace Libmirobot.Core
             });
         }
 
-        public void AttachToSerialConnection(ISerialConnection serialConnection)
+        public void AttachConnection(ISerialConnection serialConnection)
         {
-            serialConnection.MessageReceived -= SerialConnection_MessageReceived;
-            serialConnection.MessageReceived += SerialConnection_MessageReceived;
+            serialConnection.TelegramReceived -= SerialConnection_TelegramReceived;
+            serialConnection.TelegramReceived += SerialConnection_TelegramReceived;
         }
 
-        private void SerialConnection_MessageReceived(object sender, MessageReceivedEventArgs e)
+        private void SerialConnection_TelegramReceived(object sender, RobotTelegram e)
         {
-            var responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == e.InstructionIdentifier);
+            var responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.CanProcessResponse(e.Data));
             if (responsedInstruction == null)
                 return;
 
-            var updatedRobotState = responsedInstruction.ProcessResponse(e.ReceivedMessage);
+            var updatedRobotState = responsedInstruction.ProcessResponse(e.Data);
 
             this.ProcessRobotStateUpdate(updatedRobotState);
         }
 
         private void SendInstruction(string instruction, string instructionIdentifier)
         {
-            this.InstructionSent?.Invoke(this, new InstructionSentEventArgs { Instruction = instruction, InstructionIdentifier = instructionIdentifier });
+            this.InstructionSent?.Invoke(this, new RobotTelegram { Data = instruction, InstructionIdentifier = instructionIdentifier });
         }
 
         private void ProcessRobotStateUpdate(RobotStatusUpdate robotStatusUpdate)

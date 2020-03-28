@@ -20,10 +20,5 @@ namespace Libmirobot.GCode.Instructions
 
             return $"M4E{inputValue.Parameter}";
         }
-
-        public RobotStatusUpdate ProcessResponse(string returnValue)
-        {
-            return new RobotStatusUpdate();
-        }
     }
 }

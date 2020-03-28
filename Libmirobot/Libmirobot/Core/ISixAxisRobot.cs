@@ -9,7 +9,7 @@ namespace Libmirobot.Core
         /// <summary>
         /// Event being fired, when the robot issues a new command, which now has to be transferred to the hardware.
         /// </summary>
-        event EventHandler<InstructionSentEventArgs> InstructionSent;
+        event EventHandler<RobotTelegram> InstructionSent;
 
         /// <summary>
         /// Event being fired, when the robot received a status update from the hardware.
@@ -25,7 +25,7 @@ namespace Libmirobot.Core
         /// Configures the robot to receive messages from the hardware via the serial connection.
         /// </summary>
         /// <param name="serialConnection">Serial connection which the robot will use to receive commands from</param>
-        void AttachToSerialConnection(ISerialConnection serialConnection);
+        void AttachConnection(ISerialConnection serialConnection);
 
         /// <summary>
         /// Instructs the robot to report its current position.

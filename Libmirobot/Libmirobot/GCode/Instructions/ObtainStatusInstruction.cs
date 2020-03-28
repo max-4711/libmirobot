@@ -10,6 +10,11 @@ namespace Libmirobot.GCode.Instructions
     {
         public string UniqueIdentifier => "GET_STATUS_ALL";
 
+        public bool CanProcessResponse(string response)
+        {
+            return response.StartsWith("<Idle,Angle(ABCDXYZ):") && response.Contains(",Cartesian coordinate(XYZRxRyRz):") && response.Contains(",Pump PWM:") && response.Contains(",Value PWM:") && response.EndsWith(">");
+        }
+
         public string GenerateGCode(EmptyInstructionParameter inputValue)
         {
             return "?";

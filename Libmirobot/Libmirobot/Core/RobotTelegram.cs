@@ -2,9 +2,9 @@
 
 namespace Libmirobot.Core
 {
-    public class InstructionSentEventArgs : EventArgs
+    public class RobotTelegram : EventArgs
     {
-        public string Instruction { get; set; }
+        public string Data { get; set; }
 
         public string InstructionIdentifier { get; set; }
     }

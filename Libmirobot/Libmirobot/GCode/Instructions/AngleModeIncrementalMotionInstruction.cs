@@ -14,10 +14,5 @@ namespace Libmirobot.GCode.Instructions
         {
             return $"M21 G91 X{inputValue.PositioningParameter1} Y{inputValue.PositioningParameter2} Z{inputValue.PositioningParameter3} A{inputValue.PositioningParameter4} B{inputValue.PositioningParameter5} C{inputValue.PositioningParameter6} F{inputValue.Speed}";
         }
-
-        public RobotStatusUpdate ProcessResponse(string returnValue)
-        {
-            return new RobotStatusUpdate();
-        }
     }
 }

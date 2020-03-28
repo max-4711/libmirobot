@@ -14,10 +14,5 @@ namespace Libmirobot.GCode.Instructions
         {
             return "M50";
         }
-
-        public RobotStatusUpdate ProcessResponse(string returnValue)
-        {
-            return new RobotStatusUpdate();
-        }
     }
 }

@@ -16,10 +16,5 @@ namespace Libmirobot.GCode.Instructions
 
             return $"$21={param}";
         }
-
-        public RobotStatusUpdate ProcessResponse(string returnValue)
-        {
-            return new RobotStatusUpdate();
-        }
     }
 }

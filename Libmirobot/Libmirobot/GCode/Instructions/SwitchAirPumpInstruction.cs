@@ -20,10 +20,5 @@ namespace Libmirobot.GCode.Instructions
 
             return $"M3S{inputValue.Parameter}";
         }
-
-        public RobotStatusUpdate ProcessResponse(string returnValue)
-        {
-            return new RobotStatusUpdate();
-        }
     }
 }

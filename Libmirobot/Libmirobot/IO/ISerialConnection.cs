@@ -5,10 +5,12 @@ namespace Libmirobot.IO
 {
     public interface ISerialConnection
     {
-        event EventHandler<MessageReceivedEventArgs> MessageReceived;
+        event EventHandler<RobotTelegram> TelegramReceived;
 
-        void Attach(ISixAxisRobot robot);
+        void AttachRobot(ISixAxisRobot robot);
 
         void Connect();
+
+        void Disconnect();
     }
 }

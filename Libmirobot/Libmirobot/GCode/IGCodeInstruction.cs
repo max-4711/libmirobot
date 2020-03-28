@@ -4,7 +4,15 @@
     {
         string UniqueIdentifier { get; }
 
-        RobotStatusUpdate ProcessResponse(string returnValue);
+        bool CanProcessResponse(string response)
+        {
+            return false;
+        }
+
+        RobotStatusUpdate ProcessResponse(string returnValue)
+        {
+            return new RobotStatusUpdate();
+        }
     }
 
     public interface IGCodeInstruction<TInput> : IGCodeInstruction
