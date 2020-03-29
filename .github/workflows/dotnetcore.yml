@@ -23,6 +23,6 @@ jobs:
     - name: Test
       run: dotnet test Libmirobot/Libmirobot.sln --no-restore --verbosity normal
     - name: Build NuGet package
-      run: cd Libmirobot && dotnet pack -c Release -o out -p:NuspecFile=Libmirobot/Libmirobot.nuspec
+      run: cd Libmirobot && dotnet pack -c Release -o out -p:NuspecFile=Libmirobot.nuspec
     - name: Push generated package to GitHub registry
       run: dotnet nuget push ./Libmirobot/out/*.nupkg -k ${{ secrets.NUGETORG_PKG_PUSH_SECRET }} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols true
