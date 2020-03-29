@@ -8,8 +8,10 @@ namespace Libmirobot.GCode.Instructions
     /// <remarks>Instruction no. 14 as specified in protocol specification.</remarks>
     public class SwitchGripperInstruction : IGCodeInstruction<IntegerInstructionParameter>
     {
+        /// <inheritdoc/>
         public string UniqueIdentifier => "SWITCH_GRIPPER";
 
+        /// <inheritdoc/>
         public string GenerateGCode(IntegerInstructionParameter inputValue)
         {
             if (inputValue.Parameter > 65)

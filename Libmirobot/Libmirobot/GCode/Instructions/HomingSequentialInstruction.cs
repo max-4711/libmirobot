@@ -8,8 +8,10 @@ namespace Libmirobot.GCode.Instructions
     /// <remarks>Instruction no. 12 as specified in protocol specification.</remarks>
     public class HomingSequentialInstruction : IGCodeInstruction<EmptyInstructionParameter>
     {
+        /// <inheritdoc/>
         public string UniqueIdentifier => "HOMING_SEQ";
 
+        /// <inheritdoc/>
         public string GenerateGCode(EmptyInstructionParameter inputValue)
         {
             return "$HH";

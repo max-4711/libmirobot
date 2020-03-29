@@ -8,8 +8,10 @@ namespace Libmirobot.GCode.Instructions
     /// <remarks>Instruction no. 13 as specified in protocol specification.</remarks>
     public class SwitchAirPumpInstruction : IGCodeInstruction<IntegerInstructionParameter>
     {
+        /// <inheritdoc/>
         public string UniqueIdentifier => "SWITCH_PNEUMATICPUMP";
 
+        /// <inheritdoc/>
         public string GenerateGCode(IntegerInstructionParameter inputValue)
         {
             if (inputValue.Parameter < 0)

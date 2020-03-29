@@ -7,9 +7,15 @@ using System.Timers;
 
 namespace Libmirobot.IO
 {
-    public class SerialConnection : ISerialConnection, IDisposable
+    /// <summary>
+    /// Represents a serial connection to the hardware.
+    /// </summary>
+    public class SerialConnection : ISerialConnection
     {
+        /// <inheritdoc/>
         public event EventHandler<RobotTelegram> TelegramReceived;
+
+        /// <inheritdoc/>
         public event EventHandler<RobotTelegram> TelegramSent;
 
         private SerialPort serialPort = new SerialPort();
@@ -21,6 +27,11 @@ namespace Libmirobot.IO
         Timer telegramSendTimer = new Timer(50); //Mirobot reportedly struggles with receiving instructions in a higher frequency than 20 Hz: http://discuz.wlkata.com/forum.php?mod=viewthread&tid=8&extra=page%3D1
         Queue<RobotTelegram> OutboundTelegramQueue = new Queue<RobotTelegram>();
 
+        /// <summary>
+        /// Instances a new serial connection using the given port name.
+        /// </summary>
+        /// <param name="portName">Port name, which shall be used to connect to the hardware.</param>
+        /// <param name="useQueueingMode">If true, instructions will be sent to the hardware with a maximum frequency of 20 Hz and therefore queued at first.</param>
         public SerialConnection(string portName, bool useQueueingMode = true)
         {
             serialPort.PortName = portName;
@@ -36,6 +47,7 @@ namespace Libmirobot.IO
             }
         }
 
+        /// <inheritdoc/>
         public void AttachRobot(ISixAxisRobot robot)
         {
             robot.InstructionSent -= Robot_InstructionSent;
@@ -82,6 +94,7 @@ namespace Libmirobot.IO
             this.TelegramSent?.Invoke(this, robotTelegram);
         }
 
+        /// <inheritdoc/>
         public void Connect()
         {
             if (!isConnecting)
@@ -100,6 +113,7 @@ namespace Libmirobot.IO
             this.TelegramReceived?.Invoke(this, new RobotTelegram { InstructionIdentifier = lastSentInstructionIdentifier, Data = responseLine });
         }
 
+        /// <inheritdoc/>
         public void Disconnect()
         {
             if (isConnected)
@@ -111,12 +125,18 @@ namespace Libmirobot.IO
             }
         }
 
-
+        /// <summary>
+        /// Lists all serial ports, which can be used for communication with the hardware.
+        /// </summary>
+        /// <returns>List of all serial port names.</returns>
         public static IList<string> GetAvailablePortNames()
         {
             return SerialPort.GetPortNames().ToList();
         }
 
+        /// <summary>
+        /// Disposes the 
+        /// </summary>
         public void Dispose()
         {
             this.telegramSendTimer.Stop();

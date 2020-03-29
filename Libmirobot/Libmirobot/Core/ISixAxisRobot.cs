@@ -4,6 +4,9 @@ using System;
 
 namespace Libmirobot.Core
 {
+    /// <summary>
+    /// Represents a robot with 6(+1) axes.
+    /// </summary>
     public interface ISixAxisRobot
     {
         /// <summary>

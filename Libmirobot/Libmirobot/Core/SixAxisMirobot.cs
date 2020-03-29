@@ -28,6 +28,9 @@ namespace Libmirobot.Core
             var instructionCode = homingInstruction.GenerateGCode(new EmptyInstructionParameter());
 
             this.SendInstruction(instructionCode, homingInstruction.UniqueIdentifier);
+
+            if (this.AutoSendStatusUpdateRequests)
+                this.UpdateCurrentPosition();
         }
 
         public void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed)
@@ -46,6 +49,9 @@ namespace Libmirobot.Core
             });
 
             this.SendInstruction(instructionCode, axisIncrementInstruction.UniqueIdentifier);
+
+            if (this.AutoSendStatusUpdateRequests)
+                this.UpdateCurrentPosition();
         }
 
         public void IncrementCartesian(float xCoordinateIncrement, float yCoordinateIncrement, float zCoordinateIncrement, float xRotationIncrement, float yRotationIncrement, float zRotationIncrement, int speed, MovementMode movementMode)
@@ -64,6 +70,9 @@ namespace Libmirobot.Core
             });
 
             this.SendInstruction(instructionCode, cartesianIncrementInstruction.UniqueIdentifier);
+
+            if (this.AutoSendStatusUpdateRequests)
+                this.UpdateCurrentPosition();
         }
 
         public void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed)
@@ -82,6 +91,9 @@ namespace Libmirobot.Core
             });
 
             this.SendInstruction(instructionCode, axisMoveInstruction.UniqueIdentifier);
+
+            if (this.AutoSendStatusUpdateRequests)
+                this.UpdateCurrentPosition();
         }
 
         public void MoveToCartesian(float xCoordinate, float yCoordinate, float zCoordinate, float xRotation, float yRotation, float zRotation, int speed, MovementMode movementMode)
@@ -100,6 +112,9 @@ namespace Libmirobot.Core
             });
 
             this.SendInstruction(instructionCode, cartesianMoveInstruction.UniqueIdentifier);
+
+            if (this.AutoSendStatusUpdateRequests)
+                this.UpdateCurrentPosition();
         }
 
         public void SetAirPumpPower(int pwm)
@@ -109,6 +124,9 @@ namespace Libmirobot.Core
             var instructionCode = airPumpInstruction.GenerateGCode(new IntegerInstructionParameter { Parameter = pwm });
 
             this.SendInstruction(instructionCode, airPumpInstruction.UniqueIdentifier);
+
+            if (this.AutoSendStatusUpdateRequests)
+                this.UpdateCurrentPosition();
         }
 
         public void SetAxesHardLimit(bool on)
@@ -136,6 +154,9 @@ namespace Libmirobot.Core
             var instructionCode = gripperApertureInstruction.GenerateGCode(new IntegerInstructionParameter { Parameter = pwm });
 
             this.SendInstruction(instructionCode, gripperApertureInstruction.UniqueIdentifier);
+
+            if (this.AutoSendStatusUpdateRequests)
+                this.UpdateCurrentPosition();
         }
 
         public void UnlockAxes()

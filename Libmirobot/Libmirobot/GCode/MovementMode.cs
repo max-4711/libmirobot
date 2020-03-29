@@ -1,5 +1,8 @@
 ﻿namespace Libmirobot.GCode
 {
+    /// <summary>
+    /// Specifies the type of motion, which shall be used when changing the robot end effectors position.
+    /// </summary>
     public enum MovementMode
     {
         /// <summary>

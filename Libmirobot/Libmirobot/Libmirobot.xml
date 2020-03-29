@@ -1,0 +1,538 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Libmirobot</name>
+    </assembly>
+    <members>
+        <member name="T:Libmirobot.Core.ISixAxisRobot">
+            <summary>
+            Represents a robot with 6(+1) axes.
+            </summary>
+        </member>
+        <member name="E:Libmirobot.Core.ISixAxisRobot.InstructionSent">
+            <summary>
+            Event being fired, when the robot issues a new command, which now has to be transferred to the hardware.
+            </summary>
+        </member>
+        <member name="E:Libmirobot.Core.ISixAxisRobot.RobotStateChanged">
+            <summary>
+            Event being fired, when the robot received a status update from the hardware.
+            </summary>
+        </member>
+        <member name="P:Libmirobot.Core.ISixAxisRobot.AutoSendStatusUpdateRequests">
+            <summary>
+            If true, the hardware will automatically be requested to send its current state after executing a state chaning instruction (motion, homing or changes of gripper or pneumatic pump).
+            </summary>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.AttachConnection(Libmirobot.IO.ISerialConnection)">
+            <summary>
+            Configures the robot to receive messages from the hardware via the serial connection.
+            </summary>
+            <param name="serialConnection">Serial connection which the robot will use to receive commands from</param>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.UpdateCurrentPosition">
+            <summary>
+            Instructs the robot to report its current position.
+            </summary>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.MoveToCartesian(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Int32,Libmirobot.GCode.MovementMode)">
+            <summary>
+             Instructs the end effector of the robot to move to the specified cartesian coordinates and take on the provided angles using the specified movement mode.
+            </summary>
+            <param name="xCoordinate">Target x coordinate (cartesian)</param>
+            <param name="yCoordinate">Target y coordinate (cartesian)</param>
+            <param name="zCoordinate">Target z coordinate (cartesian)</param>
+            <param name="xRotation">Target roll angle (rotation around the x axis)</param>
+            <param name="yRotation">Target pitch angle (rotation around the y axis)</param>
+            <param name="zRotation">Target yaw angle (rotation around the z axis)</param>
+            <param name="speed">Desired maximum speed for movement execution. Specified in mm/min</param>
+            <param name="movementMode">Specifies, if the axes coordinate their motion with each other</param>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.IncrementCartesian(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Int32,Libmirobot.GCode.MovementMode)">
+            <summary>
+            Instructs the robot to increment (or decrement, if negative numbers provided) his current location and angles by the specified values using the specified movement mode.
+            </summary>
+            <param name="xCoordinateIncrement">Increment/Decrement for the x axis (cartesian)</param>
+            <param name="yCoordinateIncrement">Increment/Decrement for the y axis (cartesian)</param>
+            <param name="zCoordinateIncrement">Increment/Decrement for the z axis (cartesian)</param>
+            <param name="xRotationIncrement">Increment/Decrement for the roll angle (rotation around the x axis)</param>
+            <param name="yRotationIncrement">Increment/Decrement for the pitch angle (rotation around the y axis)</param>
+            <param name="zRotationIncrement">Increment/Decrement for the yaw angle (rotation around the z axis)</param>
+            <param name="speed">Desired maximum speed for movement execution. Specified in mm/min</param>
+            <param name="movementMode">Specifies, if the axes coordinate their motion with each other</param>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.MoveAxesTo(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Int32)">
+            <summary>
+            Instructs the robot to turn each axis to the corresponding angle using the specified movement mode.
+            </summary>
+            <param name="axis1">Target angle for axis 1</param>
+            <param name="axis2">Target angle for axis 2</param>
+            <param name="axis3">Target angle for axis 3</param>
+            <param name="axis4">Target angle for axis 4</param>
+            <param name="axis5">Target angle for axis 5</param>
+            <param name="axis6">Target angle for axis 6</param>
+            <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min</param>
+            <param name="movementMode">Specifiecs, if the axes coordinate their motion with each other</param>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.IncrementAxes(System.Single,System.Single,System.Single,System.Single,System.Single,System.Single,System.Int32)">
+            <summary>
+            Instructs the robot to increment (or decrement, if negative numbers provided) his axis angles by the specified values using the specified movement mode.
+            </summary>
+            <param name="axis1">Increment/Decrement for axis 1</param>
+            <param name="axis2">Increment/Decrement for axis 2</param>
+            <param name="axis3">Increment/Decrement for axis 3</param>
+            <param name="axis4">Increment/Decrement for axis 4</param>
+            <param name="axis5">Increment/Decrement for axis 5</param>
+            <param name="axis6">Increment/Decrement for axis 6</param>
+            <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min</param>
+            <param name="movementMode">Specifiecs, if the axes coordinate their motion with each other</param>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.UnlockAxes">
+            <summary>
+            Instructs the robot to unlock all axes directly, even if no homing operation was executed.
+            </summary>
+            <remarks>It is strongly recommend to perform a homing operation instead of this command to unlock the axes in order to prevent mechanical errors.</remarks>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.SetAxesSoftLimit(System.Boolean)">
+            <summary>
+            Instructs the robot to enable or disable the soft limit function, which will limit the arm movement if the soft kickout range is reached. Applies to all axes.
+            </summary>
+            <param name="on">Specifies, whether the soft limit function should be on or off.</param>
+            <remarks>Is is strongly recommended to leave the soft limit function at their default value (enabled).</remarks>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.SetAxesHardLimit(System.Boolean)">
+            <summary>
+            Instructs the robot to enable or disable the hard limit function, which will stop the shaft movement if the travel switches for the hard limit positions are toggled. Applies to the axes 1, 2 and 3.
+            </summary>
+            <param name="on">Specifies, whether the hard limit function should be on or off.</param>
+            <remarks>It is strongly recommended to leave the hard limit function at their default value (enabled).</remarks>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.HomeAxes(Libmirobot.GCode.HomingMode)">
+            <summary>
+            Instructs the robot to perform a homing operation.
+            </summary>
+            <param name="homingMode">Specifies, which homing mode will be used for the motion</param>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.SetAirPumpPower(System.Int32)">
+            <summary>
+            Controls the duty cycle of the pneumatic air pump attached to the robot.
+            </summary>
+            <param name="pwm">Min 0 (low power), max 1000 (high power)</param>
+        </member>
+        <member name="M:Libmirobot.Core.ISixAxisRobot.SetGripperAperture(System.Int32)">
+            <summary>
+            Controls the duty cycle of the gripper
+            </summary>
+            <param name="pwm">Min (closed) 40, max (open) 65</param>
+        </member>
+        <member name="T:Libmirobot.Core.RobotTelegram">
+            <summary>
+            Represents a g code instruction for the hardware or the response for an instruction from the hardware.
+            </summary>
+        </member>
+        <member name="P:Libmirobot.Core.RobotTelegram.Data">
+            <summary>
+            G code instruction or hardware response
+            </summary>
+        </member>
+        <member name="P:Libmirobot.Core.RobotTelegram.InstructionIdentifier">
+            <summary>
+            Unique identifier of the g code instruction which was used to generate the g code (or which was most likely the initial trigger for the hardware response).
+            </summary>
+        </member>
+        <member name="T:Libmirobot.GCode.HomingMode">
+            <summary>
+            Specifies the type of homing mode, which shall be used to perform a homing operation.
+            </summary>
+        </member>
+        <member name="F:Libmirobot.GCode.HomingMode.InSequence">
+            <summary>
+            All axes will move one after another
+            </summary>
+        </member>
+        <member name="F:Libmirobot.GCode.HomingMode.Simultaneous">
+            <summary>
+            All axes will move at the same time
+            </summary>
+        </member>
+        <member name="T:Libmirobot.GCode.IGCodeInstruction">
+            <summary>
+            Represents a g code instruction.
+            </summary>
+        </member>
+        <member name="P:Libmirobot.GCode.IGCodeInstruction.UniqueIdentifier">
+            <summary>
+            Identifier to uniquely identify the instruction.
+            </summary>
+        </member>
+        <member name="M:Libmirobot.GCode.IGCodeInstruction.CanProcessResponse(System.String)">
+            <summary>
+            Return if the instruction is able to process the response from the hardware.
+            </summary>
+            <param name="response">Response received from the hardware</param>
+            <returns>true, if this instruction can process the response or false, if the instruction is not able to process the response.</returns>
+        </member>
+        <member name="M:Libmirobot.GCode.IGCodeInstruction.ProcessResponse(System.String)">
+            <summary>
+            Parses the response from the hardware to a robot status update object.
+            </summary>
+            <param name="returnValue">Response received from the hardware</param>
+            <returns>Robot status object extracted from the hardware response.</returns>
+        </member>
+        <member name="T:Libmirobot.GCode.IGCodeInstruction`1">
+            <summary>
+            Represents a g code instruction with different kinds of input parameters.
+            </summary>
+            <typeparam name="TInput">Type of the input parameters needed for g code generation.</typeparam>
+        </member>
+        <member name="M:Libmirobot.GCode.IGCodeInstruction`1.GenerateGCode(`0)">
+            <summary>
+            Generated g code from the input parameters.
+            </summary>
+            <param name="inputValue">Parameters for g code generation.</param>
+            <returns>G code, which can be sent to the hardware.</returns>
+        </member>
+        <member name="P:Libmirobot.GCode.InstructionParameters.MotionInstructionParameter.PositioningParameter1">
+            <summary>
+            First parameter to specify the target position or increment of the motion.
+            </summary>
+            <remarks>Typically used for the x axis or axis 1.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.InstructionParameters.MotionInstructionParameter.PositioningParameter2">
+            <summary>
+            Second parameter to specify the target position or increment of the motion.
+            </summary>
+            <remarks>Typically used for the y axis or axis 2.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.InstructionParameters.MotionInstructionParameter.PositioningParameter3">
+            <summary>
+            Third parameter to specify the target position or increment of the motion.
+            </summary>
+            <remarks>Typically used for the z axis or axis 3.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.InstructionParameters.MotionInstructionParameter.PositioningParameter4">
+            <summary>
+            Fourth parameter to specify the target position or increment of the motion.
+            </summary>
+            <remarks>Typically used for the roll angle (rotation around x axis) or axis 4.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.InstructionParameters.MotionInstructionParameter.PositioningParameter5">
+            <summary>
+            Fifth parameter to specify the target position or increment of the motion.
+            </summary>
+            <remarks>Typically used for the pitch angle (rotation around y axis) or axis 5.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.InstructionParameters.MotionInstructionParameter.PositioningParameter6">
+            <summary>
+            Sixth parameter to specify the target position or increment of the motion.
+            </summary>
+            <remarks>Typically used for the yaw angle (rotation around z axis) or axis 6.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.InstructionParameters.MotionInstructionParameter.Speed">
+            <summary>
+            Desired speed of the motion
+            </summary>
+            <remarks>Specified in mm/min.</remarks>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.AngleModeAbsoluteMotionInstruction">
+            <summary>
+            Instructs the robot to move to the specified absolute position in angle mode.
+            </summary>
+            <remarks>Instruction no. 5 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.AngleModeAbsoluteMotionInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.AngleModeAbsoluteMotionInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.MotionInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.AngleModeIncrementalMotionInstruction">
+            <summary>
+            Instructs the robot to increment/decrement its current position in angle mode.
+            </summary>
+            <remarks>Instruction no. 6 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.AngleModeIncrementalMotionInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.AngleModeIncrementalMotionInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.MotionInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.CartesianModeAbsoluteLinMotionInstruction">
+            <summary>
+            Instructs the robot to move to the specified absolute position in cartesian mode (linear interpolation).
+            </summary>
+            <remarks>Instruction no. 8 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.CartesianModeAbsoluteLinMotionInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.CartesianModeAbsoluteLinMotionInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.MotionInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.CartesianModeAbsolutePtpMotionInstruction">
+            <summary>
+            Instructs the robot to move to the specified absolute position in cartesian mode (point-to-point).
+            </summary>
+            <remarks>Instruction no. 7 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.CartesianModeAbsolutePtpMotionInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.CartesianModeAbsolutePtpMotionInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.MotionInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.CartesianModeRelativeLinMotionInstruction">
+            <summary>
+            Instructs the robot to increment/decrement its current position in cartesian mode (linear interpolation).
+            </summary>
+            <remarks>Instruction no. 10 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.CartesianModeRelativeLinMotionInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.CartesianModeRelativeLinMotionInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.MotionInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.CartesianModeRelativePtpMotionInstruction">
+            <summary>
+            Instructs the robot to increment/decrement its current position in cartesian mode (point-to-point).
+            </summary>
+            <remarks>Instruction no. 9 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.CartesianModeRelativePtpMotionInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.CartesianModeRelativePtpMotionInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.MotionInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.HomingSequentialInstruction">
+            <summary>
+            Instructs the robot to perform a homing operation (all axes sequentially).
+            </summary>
+            <remarks>Instruction no. 12 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.HomingSequentialInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.HomingSequentialInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.EmptyInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.HomingSimultaneousInstruction">
+            <summary>
+            Instructs the robot to perform a homing operation (all axes simultaneously).
+            </summary>
+            <remarks>Instruction no. 11 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.HomingSimultaneousInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.HomingSimultaneousInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.EmptyInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.ObtainStatusInstruction">
+            <summary>
+            Obtains the status and position information of the current manipulator.
+            </summary>
+            <remarks>Instruction no. 1 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.ObtainStatusInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.ObtainStatusInstruction.CanProcessResponse(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.ObtainStatusInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.EmptyInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.ObtainStatusInstruction.ProcessResponse(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.ParameterlessInstructionBase.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.ParameterlessInstructionBase.GenerateGCode">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.ParameterlessInstructionBase.GenerateGCode(Libmirobot.GCode.InstructionParameters.EmptyInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.ParameterlessInstructionBase.ProcessResponse(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.SwitchAirPumpInstruction">
+            <summary>
+            Instructs the robot to turn the air pump on or off.
+            </summary>
+            <remarks>Instruction no. 13 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.SwitchAirPumpInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.SwitchAirPumpInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.IntegerInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.SwitchGripperInstruction">
+            <summary>
+            Instructs the robot to open or close the gripper.
+            </summary>
+            <remarks>Instruction no. 14 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.SwitchGripperInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.SwitchGripperInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.IntegerInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.ToggleAxesHardLimitInstruction">
+            <summary>
+            Switches the hard limit of axes 1-3 on or off.
+            </summary>
+            <remarks>Instruction no. 4 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.ToggleAxesHardLimitInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.ToggleAxesHardLimitInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.BinaryInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.ToggleAxesSoftLimitInstruction">
+            <summary>
+            Switches the soft limit of all axes on or off.
+            </summary>
+            <remarks>Instruction no. 3 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.ToggleAxesSoftLimitInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.ToggleAxesSoftLimitInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.BinaryInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.Instructions.UnlockAxesInstruction">
+            <summary>
+            Releases the shaft locking state of all axes.
+            </summary>
+            <remarks>Instruction no. 2 as specified in protocol specification.</remarks>
+        </member>
+        <member name="P:Libmirobot.GCode.Instructions.UnlockAxesInstruction.UniqueIdentifier">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.GCode.Instructions.UnlockAxesInstruction.GenerateGCode(Libmirobot.GCode.InstructionParameters.EmptyInstructionParameter)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Libmirobot.GCode.MovementMode">
+            <summary>
+            Specifies the type of motion, which shall be used when changing the robot end effectors position.
+            </summary>
+        </member>
+        <member name="F:Libmirobot.GCode.MovementMode.PointToPoint">
+            <summary>
+            All axes will move independently from each other; so they may not finish their movement at the same time.
+            </summary>
+        </member>
+        <member name="F:Libmirobot.GCode.MovementMode.Linear">
+            <summary>
+            Motion is being coordinated between the axes, so that they will finish the target position at the same time and the movement describes a straight line.
+            </summary>
+        </member>
+        <member name="T:Libmirobot.IO.ISerialConnection">
+            <summary>
+            Represents a serial connection to the hardware.
+            </summary>
+        </member>
+        <member name="E:Libmirobot.IO.ISerialConnection.TelegramReceived">
+            <summary>
+            Event being fired, when new messages from the hardware are being received.
+            </summary>
+        </member>
+        <member name="E:Libmirobot.IO.ISerialConnection.TelegramSent">
+            <summary>
+            Event being fired, when new messages to the hardware are being sent.
+            </summary>
+        </member>
+        <member name="M:Libmirobot.IO.ISerialConnection.AttachRobot(Libmirobot.Core.ISixAxisRobot)">
+            <summary>
+            Configures the serial connection to listen for new messages from the robot and send them to the hardware
+            </summary>
+            <param name="robot">Robot, whose messages shall be sent to the hardware</param>
+        </member>
+        <member name="M:Libmirobot.IO.ISerialConnection.Connect">
+            <summary>
+            Establishes the connection to the hardware.
+            </summary>
+        </member>
+        <member name="M:Libmirobot.IO.ISerialConnection.Disconnect">
+            <summary>
+            Tears down the connection to the hardware.
+            </summary>
+        </member>
+        <member name="M:Libmirobot.IO.SerialConnection.AttachRobot(Libmirobot.Core.ISixAxisRobot)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.IO.SerialConnection.Connect">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.IO.SerialConnection.Disconnect">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.IO.SerialConnection.Dispose">
+            <summary>
+            Disposes the 
+            </summary>
+        </member>
+        <member name="T:Libmirobot.RobotConfigurator">
+            <summary>
+            Helper to simplify the act of setting up a robot and serial port.
+            </summary>
+        </member>
+        <member name="M:Libmirobot.RobotConfigurator.PreconfigureRobot(System.String)">
+            <summary>
+            Initializes a six axis robot, a serial port and wires them together.
+            </summary>
+            <param name="comPortName">Name of the serial port used for communication with the hardware.</param>
+            <returns>Preconfigured robot, with robot and serial port ready for use.</returns>
+        </member>
+        <member name="M:Libmirobot.RobotConfigurator.GetAvailableComports">
+            <summary>
+            Lists all serial ports, which can be used for communication with the hardware.
+            </summary>
+            <returns>List of all serial port names.</returns>
+        </member>
+        <member name="T:Libmirobot.PreconfiguredRobot">
+            <summary>
+            Capsulation object for a preconfigured robot and serial port, obtained from the RobotConfigurator.
+            </summary>
+        </member>
+        <member name="P:Libmirobot.PreconfiguredRobot.Robot">
+            <summary>
+            Six axis robot, attached to the serial port.
+            </summary>
+        </member>
+        <member name="P:Libmirobot.PreconfiguredRobot.TelegramPort">
+            <summary>
+            Serial port used for communication with the hardware, attached to the robot.
+            </summary>
+        </member>
+        <member name="E:Libmirobot.PreconfiguredRobot.TelegramReceived">
+            <summary>
+            Event being fired, when a new message from the hardware is received via the serial port.
+            </summary>
+        </member>
+        <member name="E:Libmirobot.PreconfiguredRobot.TelegramSent">
+            <summary>
+            Event being fired, when a new message to the hardware is being sent via the serial port.
+            </summary>
+        </member>
+        <member name="E:Libmirobot.PreconfiguredRobot.RobotStateChanged">
+            <summary>
+            Event being fired, when the robot component detects a status update.
+            </summary>
+            <remarks>Will fire when the hardware's response for the status request. Status request can be triggered via UpdateCurrentPosition() method or by setting AutoSendStatusUpdateRequests property to true.</remarks>
+        </member>
+        <member name="M:Libmirobot.PreconfiguredRobot.Dispose">
+            <summary>
+            Disposes the serial port and thereby terminates the connection to the hardware.
+            </summary>
+        </member>
+    </members>
+</doc>

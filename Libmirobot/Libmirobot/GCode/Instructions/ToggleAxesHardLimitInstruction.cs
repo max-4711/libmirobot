@@ -8,8 +8,10 @@ namespace Libmirobot.GCode.Instructions
     /// <remarks>Instruction no. 4 as specified in protocol specification.</remarks>
     public class ToggleAxesHardLimitInstruction : IGCodeInstruction<BinaryInstructionParameter>
     {
+        /// <inheritdoc/>
         public string UniqueIdentifier => "SWITCH_LIMIT_HARD";
 
+        /// <inheritdoc/>
         public string GenerateGCode(BinaryInstructionParameter inputValue)
         {
             var param = inputValue.OpenClose == true ? 1 : 0;

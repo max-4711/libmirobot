@@ -8,8 +8,10 @@ namespace Libmirobot.GCode.Instructions
     /// <remarks>Instruction no. 2 as specified in protocol specification.</remarks>
     public class UnlockAxesInstruction : IGCodeInstruction<EmptyInstructionParameter>
     {
+        /// <inheritdoc/>
         public string UniqueIdentifier => "UNLOCK_AXES_ALL";
 
+        /// <inheritdoc/>
         public string GenerateGCode(EmptyInstructionParameter inputValue)
         {
             return "M50";

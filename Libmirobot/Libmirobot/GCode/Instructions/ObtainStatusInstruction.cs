@@ -9,18 +9,22 @@ namespace Libmirobot.GCode.Instructions
     /// <remarks>Instruction no. 1 as specified in protocol specification.</remarks>
     public class ObtainStatusInstruction : IGCodeInstruction<EmptyInstructionParameter>
     {
+        /// <inheritdoc/>
         public string UniqueIdentifier => "GET_STATUS_ALL";
 
+        /// <inheritdoc/>
         public bool CanProcessResponse(string response)
         {
             return response.StartsWith("<Idle,Angle(ABCDXYZ):") && response.Contains(",Cartesian coordinate(XYZRxRyRz):") && response.Contains(",Pump PWM:") && response.Contains(",Value PWM:") && response.EndsWith(">");
         }
 
+        /// <inheritdoc/>
         public string GenerateGCode(EmptyInstructionParameter inputValue)
         {
             return "?";
         }
 
+        /// <inheritdoc/>
         public RobotStatusUpdate ProcessResponse(string returnValue)
         {
             if (string.IsNullOrEmpty(returnValue))
