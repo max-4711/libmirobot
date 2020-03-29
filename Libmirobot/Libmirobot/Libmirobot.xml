@@ -466,6 +466,24 @@
             Tears down the connection to the hardware.
             </summary>
         </member>
+        <member name="T:Libmirobot.IO.SerialConnection">
+            <summary>
+            Represents a serial connection to the hardware.
+            </summary>
+        </member>
+        <member name="E:Libmirobot.IO.SerialConnection.TelegramReceived">
+            <inheritdoc/>
+        </member>
+        <member name="E:Libmirobot.IO.SerialConnection.TelegramSent">
+            <inheritdoc/>
+        </member>
+        <member name="M:Libmirobot.IO.SerialConnection.#ctor(System.String,System.Boolean)">
+            <summary>
+            Instances a new serial connection using the given port name.
+            </summary>
+            <param name="portName">Port name, which shall be used to connect to the hardware.</param>
+            <param name="useQueueingMode">If true, instructions will be sent to the hardware with a maximum frequency of 20 Hz and therefore queued at first.</param>
+        </member>
         <member name="M:Libmirobot.IO.SerialConnection.AttachRobot(Libmirobot.Core.ISixAxisRobot)">
             <inheritdoc/>
         </member>
@@ -475,28 +493,16 @@
         <member name="M:Libmirobot.IO.SerialConnection.Disconnect">
             <inheritdoc/>
         </member>
-        <member name="M:Libmirobot.IO.SerialConnection.Dispose">
-            <summary>
-            Disposes the 
-            </summary>
-        </member>
-        <member name="T:Libmirobot.RobotConfigurator">
-            <summary>
-            Helper to simplify the act of setting up a robot and serial port.
-            </summary>
-        </member>
-        <member name="M:Libmirobot.RobotConfigurator.PreconfigureRobot(System.String)">
-            <summary>
-            Initializes a six axis robot, a serial port and wires them together.
-            </summary>
-            <param name="comPortName">Name of the serial port used for communication with the hardware.</param>
-            <returns>Preconfigured robot, with robot and serial port ready for use.</returns>
-        </member>
-        <member name="M:Libmirobot.RobotConfigurator.GetAvailableComports">
+        <member name="M:Libmirobot.IO.SerialConnection.GetAvailablePortNames">
             <summary>
             Lists all serial ports, which can be used for communication with the hardware.
             </summary>
             <returns>List of all serial port names.</returns>
+        </member>
+        <member name="M:Libmirobot.IO.SerialConnection.Dispose">
+            <summary>
+            Disposes the 
+            </summary>
         </member>
         <member name="T:Libmirobot.PreconfiguredRobot">
             <summary>
@@ -533,6 +539,24 @@
             <summary>
             Disposes the serial port and thereby terminates the connection to the hardware.
             </summary>
+        </member>
+        <member name="T:Libmirobot.RobotConfigurator">
+            <summary>
+            Helper to simplify the act of setting up a robot and serial port.
+            </summary>
+        </member>
+        <member name="M:Libmirobot.RobotConfigurator.PreconfigureRobot(System.String)">
+            <summary>
+            Initializes a six axis robot, a serial port and wires them together.
+            </summary>
+            <param name="comPortName">Name of the serial port used for communication with the hardware.</param>
+            <returns>Preconfigured robot, with robot and serial port ready for use.</returns>
+        </member>
+        <member name="M:Libmirobot.RobotConfigurator.GetAvailableComports">
+            <summary>
+            Lists all serial ports, which can be used for communication with the hardware.
+            </summary>
+            <returns>List of all serial port names.</returns>
         </member>
     </members>
 </doc>

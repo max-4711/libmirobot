@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>D:\Code\libmirobot\Libmirobot\Libmirobot\Libmirobot.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\lib\Libmirobot.xml</DocumentationFile>
+    <OutputPath>bin\Debug\lib\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +16,11 @@
 
   <PropertyGroup>
     <NuspecFile>Libmirobot.nuspec</NuspecFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\lib\Libmirobot.xml</DocumentationFile>
+    <OutputPath>bin\Release\lib\</OutputPath>
   </PropertyGroup>
 
 </Project>
