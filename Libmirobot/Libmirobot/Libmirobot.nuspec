@@ -12,7 +12,7 @@
         <license type="expression">MIT</license>
     </metadata>
     <files>
-      <file src="Release/lib/*.*" target="lib" />
+      <file src="bin/Release/lib/*.*" target="lib" />
     </files>
     <dependencies>
       <dependency id="System.IO.Ports" version="4.7.0" />
