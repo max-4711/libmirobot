@@ -7,11 +7,17 @@ using System.Linq;
 
 namespace Libmirobot.Core
 {
+    /// <summary>
+    /// Represents the implementation of a 6 (+1) axis robot.
+    /// </summary>
     public class SixAxisMirobot : ISixAxisRobot
     {
+        /// <inheritdoc/>
         public event EventHandler<RobotTelegram> InstructionSent;
+        /// <inheritdoc/>
         public event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
 
+        /// <inheritdoc/>
         public bool AutoSendStatusUpdateRequests { get; set; } = false;
 
         private readonly SixAxisRobotSetupParameters setupParameters;
@@ -21,6 +27,7 @@ namespace Libmirobot.Core
             this.setupParameters = setupParameters;
         }
 
+        /// <inheritdoc/>
         public void HomeAxes(HomingMode homingMode)
         {
             var homingInstruction = homingMode == HomingMode.InSequence ? this.setupParameters.SequentialHomingInstruction : this.setupParameters.SimultaneousHomingInstruction;
@@ -33,6 +40,7 @@ namespace Libmirobot.Core
                 this.UpdateCurrentPosition();
         }
 
+        /// <inheritdoc/>
         public void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed)
         {
             var axisIncrementInstruction = this.setupParameters.AngleRelativeMoveInstruction;
@@ -54,6 +62,7 @@ namespace Libmirobot.Core
                 this.UpdateCurrentPosition();
         }
 
+        /// <inheritdoc/>
         public void IncrementCartesian(float xCoordinateIncrement, float yCoordinateIncrement, float zCoordinateIncrement, float xRotationIncrement, float yRotationIncrement, float zRotationIncrement, int speed, MovementMode movementMode)
         {
             var cartesianIncrementInstruction = movementMode == MovementMode.Linear ? this.setupParameters.CartesianRelativeLinMoveInstruction : this.setupParameters.CartesianRelativePtpMoveInstruction;
@@ -75,6 +84,7 @@ namespace Libmirobot.Core
                 this.UpdateCurrentPosition();
         }
 
+        /// <inheritdoc/>
         public void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed)
         {
             var axisMoveInstruction = this.setupParameters.AngleAbsoluteMoveInstrcution;
@@ -96,6 +106,7 @@ namespace Libmirobot.Core
                 this.UpdateCurrentPosition();
         }
 
+        /// <inheritdoc/>
         public void MoveToCartesian(float xCoordinate, float yCoordinate, float zCoordinate, float xRotation, float yRotation, float zRotation, int speed, MovementMode movementMode)
         {
             var cartesianMoveInstruction = movementMode == MovementMode.Linear ? this.setupParameters.CartesianAbsoluteLinMoveInstruction : this.setupParameters.CartesianAbsolutePtpMoveInstrcution;
@@ -117,6 +128,7 @@ namespace Libmirobot.Core
                 this.UpdateCurrentPosition();
         }
 
+        /// <inheritdoc/>
         public void SetAirPumpPower(int pwm)
         {
             var airPumpInstruction = this.setupParameters.SetAirPumpPwmInstruction;
@@ -129,6 +141,7 @@ namespace Libmirobot.Core
                 this.UpdateCurrentPosition();
         }
 
+        /// <inheritdoc/>
         public void SetAxesHardLimit(bool on)
         {
             var axesHardLimitInstruction = this.setupParameters.SetAxesHardLimitInstruction;
@@ -138,6 +151,7 @@ namespace Libmirobot.Core
             this.SendInstruction(instructionCode, axesHardLimitInstruction.UniqueIdentifier);
         }
 
+        /// <inheritdoc/>
         public void SetAxesSoftLimit(bool on)
         {
             var axesSoftLimitInstruction = this.setupParameters.SetAxesSoftLimitInstruction;
@@ -147,6 +161,7 @@ namespace Libmirobot.Core
             this.SendInstruction(instructionCode, axesSoftLimitInstruction.UniqueIdentifier);
         }
 
+        /// <inheritdoc/>
         public void SetGripperAperture(int pwm)
         {
             var gripperApertureInstruction = this.setupParameters.SetGripperPwmInstruction;
@@ -159,6 +174,7 @@ namespace Libmirobot.Core
                 this.UpdateCurrentPosition();
         }
 
+        /// <inheritdoc/>
         public void UnlockAxes()
         {
             var instruction = this.setupParameters.UnlockAxesInstruction;
@@ -167,6 +183,7 @@ namespace Libmirobot.Core
             this.SendInstruction(instructionCode, instruction.UniqueIdentifier);
         }
 
+        /// <inheritdoc/>
         public void UpdateCurrentPosition()
         {
             var instruction = this.setupParameters.RequestPositionInstruction;
@@ -175,6 +192,10 @@ namespace Libmirobot.Core
             this.SendInstruction(instructionCode, instruction.UniqueIdentifier);
         }
 
+        /// <summary>
+        /// Created a new instance of six axis mirobot with default configuration.
+        /// </summary>
+        /// <returns>Newly instanciated six axis robot.</returns>
         public static SixAxisMirobot CreateNew()
         {
             return new SixAxisMirobot(new SixAxisRobotSetupParameters
@@ -196,6 +217,7 @@ namespace Libmirobot.Core
             });
         }
 
+        /// <inheritdoc/>
         public void AttachConnection(ISerialConnection serialConnection)
         {
             serialConnection.TelegramReceived -= SerialConnection_TelegramReceived;

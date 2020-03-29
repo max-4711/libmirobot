@@ -1,5 +1,8 @@
 ﻿namespace Libmirobot.GCode.InstructionParameters
 {
+    /// <summary>
+    /// Represents a parameter for g code instructions containing data typically needed to instruct a motion.
+    /// </summary>
     public class MotionInstructionParameter
     {
         /// <summary>
