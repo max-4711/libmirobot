@@ -3,14 +3,18 @@
     <metadata>
         <!-- Required elements-->
         <id>libmirobot</id>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
         <description>Inofficial library to control a WLKATA Mirobot. Not affiliated to WLKATA in any way.</description>
         <authors>max4711</authors>
 
         <!-- Optional elements -->
         <projectUrl>https://github.com/maxkde/libmirobot</projectUrl>
         <license type="expression">MIT</license>
-        <!-- ... -->
     </metadata>
-        <!-- Optional 'files' node -->
+    <files>
+      <file src="Release/lib/*.*" target="lib" />
+    </files>
+    <dependencies>
+      <dependency id="System.IO.Ports" version="4.7.0" />
+    </dependencies>
 </package>
