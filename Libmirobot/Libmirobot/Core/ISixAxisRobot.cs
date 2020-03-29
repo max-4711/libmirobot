@@ -71,7 +71,6 @@ namespace Libmirobot.Core
         /// <param name="axis5">Target angle for axis 5</param>
         /// <param name="axis6">Target angle for axis 6</param>
         /// <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min</param>
-        /// <param name="movementMode">Specifiecs, if the axes coordinate their motion with each other</param>
         void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed);
 
         /// <summary>
@@ -84,7 +83,6 @@ namespace Libmirobot.Core
         /// <param name="axis5">Increment/Decrement for axis 5</param>
         /// <param name="axis6">Increment/Decrement for axis 6</param>
         /// <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min</param>
-        /// <param name="movementMode">Specifiecs, if the axes coordinate their motion with each other</param>
         void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed);
 
         /// <summary>
