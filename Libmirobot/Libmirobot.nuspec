@@ -3,14 +3,14 @@
     <metadata>
         <!-- Required elements-->
         <id>libmirobot</id>
-        <version>0.1.0.0</version>
+        <version>1.0.1</version>
         <description>Inofficial library to control a WLKATA Mirobot. Not affiliated to WLKATA in any way.</description>
-        <authors>Max</authors>
+        <authors>max4711</authors>
 
         <!-- Optional elements -->
-        <!-- ... -->
-    </metadata>
         <projectUrl>https://github.com/maxkde/libmirobot</projectUrl>
         <license type="expression">MIT</license>
+        <!-- ... -->
+    </metadata>
         <!-- Optional 'files' node -->
 </package>

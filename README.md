@@ -10,6 +10,18 @@ G Code protol over a serial connection is being used; official specification can
 ## License
 MIT License
 
+## Installation
+Libmirobot is available as package on nuget.org.
+
+Use package manager console to install:
+```
+PM> Install-Package Libmirobot
+```
+or .NET CLI:
+```
+dotnet add package Libmirobot
+```
+
 ## Example Usage
 ```
 var comPorts = robotConfigurator.GetAvailableComports();
