@@ -15,7 +15,7 @@ namespace Libmirobot.GCode.Instructions
         /// <inheritdoc/>
         public bool CanProcessResponse(string response)
         {
-            return response.StartsWith("<Idle,Angle(ABCDXYZ):") && response.Contains(",Cartesian coordinate(XYZRxRyRz):") && response.Contains(",Pump PWM:") && response.Contains(",Value PWM:") && response.EndsWith(">");
+            return (response.StartsWith("<Idle,Angle(ABCDXYZ):") || response.StartsWith("<Run,Angle(ABCDXYZ):")) && response.Contains(",Cartesian coordinate(XYZRxRyRz):") && response.Contains(",Pump PWM:") && response.Contains(",Valve PWM:") && response.EndsWith(">");
         }
 
         /// <inheritdoc/>
@@ -32,9 +32,18 @@ namespace Libmirobot.GCode.Instructions
 
             try
             {
-                //<Idle,Angle(ABCDXYZ):{A},{B},{C},{D},{X},{Y},{Z},Cartesian coordinate(XYZRxRyRz):{X},{Y},{Z},{Rx},{Ry},{Rz},Pump PWM:{PWM1},Value PWM:{PWM2}>
+                //<Idle,Angle(ABCDXYZ):{A},{B},{C},{D},{X},{Y},{Z},Cartesian coordinate(XYZRxRyRz):{X},{Y},{Z},{Rx},{Ry},{Rz},Pump PWM:{PWM1},Valve PWM:{PWM2}>
 
                 var colonSeparatedStrings = returnValue.Split(':');
+
+                var idleState = colonSeparatedStrings[0].Split(',');
+                var idleStateTrimmed = idleState[0].TrimStart('<');
+
+                bool isIdle = true;
+                if (idleStateTrimmed == "Run")
+                {
+                    isIdle = false;
+                }
 
                 var anglesCommaSeparated = colonSeparatedStrings[1].Split(',');
                 var angle1 = double.Parse(anglesCommaSeparated[0], CultureInfo.InvariantCulture.NumberFormat);
@@ -75,6 +84,7 @@ namespace Libmirobot.GCode.Instructions
 
                 return new RobotStatusUpdate
                 {
+                    IsIdle = isIdle,
                     Axis1Angle = angle1,
                     Axis2Angle = angle2,
                     Axis3Angle = angle3,

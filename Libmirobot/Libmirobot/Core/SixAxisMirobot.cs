@@ -13,9 +13,9 @@ namespace Libmirobot.Core
     public class SixAxisMirobot : ISixAxisRobot
     {
         /// <inheritdoc/>
-        public event EventHandler<RobotTelegram> InstructionSent;
+        public event EventHandler<RobotTelegram>? InstructionSent;
         /// <inheritdoc/>
-        public event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
+        public event EventHandler<RobotStateChangedEventArgs>? RobotStateChanged;
 
         /// <inheritdoc/>
         public bool AutoSendStatusUpdateRequests { get; set; } = false;
@@ -57,9 +57,6 @@ namespace Libmirobot.Core
             });
 
             this.SendInstruction(instructionCode, axisIncrementInstruction.UniqueIdentifier);
-
-            if (this.AutoSendStatusUpdateRequests)
-                this.UpdateCurrentPosition();
         }
 
         /// <inheritdoc/>
@@ -79,9 +76,6 @@ namespace Libmirobot.Core
             });
 
             this.SendInstruction(instructionCode, cartesianIncrementInstruction.UniqueIdentifier);
-
-            if (this.AutoSendStatusUpdateRequests)
-                this.UpdateCurrentPosition();
         }
 
         /// <inheritdoc/>
@@ -101,9 +95,6 @@ namespace Libmirobot.Core
             });
 
             this.SendInstruction(instructionCode, axisMoveInstruction.UniqueIdentifier);
-
-            if (this.AutoSendStatusUpdateRequests)
-                this.UpdateCurrentPosition();
         }
 
         /// <inheritdoc/>
@@ -123,9 +114,6 @@ namespace Libmirobot.Core
             });
 
             this.SendInstruction(instructionCode, cartesianMoveInstruction.UniqueIdentifier);
-
-            if (this.AutoSendStatusUpdateRequests)
-                this.UpdateCurrentPosition();
         }
 
         /// <inheritdoc/>
@@ -198,30 +186,29 @@ namespace Libmirobot.Core
         /// <returns>Newly instanciated six axis robot.</returns>
         public static SixAxisMirobot CreateNew()
         {
-            return new SixAxisMirobot(new SixAxisRobotSetupParameters
-            {
-                AngleAbsoluteMoveInstrcution = new AngleModeAbsoluteMotionInstruction(),
-                AngleRelativeMoveInstruction = new AngleModeIncrementalMotionInstruction(),
-                CartesianAbsoluteLinMoveInstruction = new CartesianModeAbsoluteLinMotionInstruction(),
-                CartesianAbsolutePtpMoveInstrcution = new CartesianModeAbsolutePtpMotionInstruction(),
-                CartesianRelativeLinMoveInstruction = new CartesianModeRelativeLinMotionInstruction(),
-                CartesianRelativePtpMoveInstruction = new CartesianModeRelativePtpMotionInstruction(),
-                RequestPositionInstruction = new ObtainStatusInstruction(),
-                SequentialHomingInstruction = new HomingSequentialInstruction(),
-                SimultaneousHomingInstruction = new HomingSimultaneousInstruction(),
-                SetAirPumpPwmInstruction = new SwitchAirPumpInstruction(),
-                SetGripperPwmInstruction = new SwitchGripperInstruction(),
-                SetAxesHardLimitInstruction = new ToggleAxesHardLimitInstruction(),
-                SetAxesSoftLimitInstruction = new ToggleAxesSoftLimitInstruction(),
-                UnlockAxesInstruction = new UnlockAxesInstruction()
-            });
+            return new SixAxisMirobot(new SixAxisRobotSetupParameters(
+                new ObtainStatusInstruction(),
+                new CartesianModeAbsolutePtpMotionInstruction(),
+                new CartesianModeAbsoluteLinMotionInstruction(),
+                new CartesianModeRelativePtpMotionInstruction(),
+                new CartesianModeRelativeLinMotionInstruction(),
+                new AngleModeAbsoluteMotionInstruction(),
+                new AngleModeIncrementalMotionInstruction(),
+                new ToggleAxesSoftLimitInstruction(),
+                new ToggleAxesHardLimitInstruction(),
+                new UnlockAxesInstruction(),
+                new HomingSequentialInstruction(),
+                new HomingSimultaneousInstruction(),
+                new SwitchAirPumpInstruction(),
+                new SwitchGripperInstruction()
+                ));
         }
 
         /// <inheritdoc/>
         public void AttachConnection(ISerialConnection serialConnection)
         {
-            serialConnection.TelegramReceived -= SerialConnection_TelegramReceived;
-            serialConnection.TelegramReceived += SerialConnection_TelegramReceived;
+            serialConnection.TelegramReceived -= this.SerialConnection_TelegramReceived;
+            serialConnection.TelegramReceived += this.SerialConnection_TelegramReceived;
         }
 
         private void SerialConnection_TelegramReceived(object sender, RobotTelegram e)
@@ -237,7 +224,7 @@ namespace Libmirobot.Core
 
         private void SendInstruction(string instruction, string instructionIdentifier)
         {
-            this.InstructionSent?.Invoke(this, new RobotTelegram { Data = instruction, InstructionIdentifier = instructionIdentifier });
+            this.InstructionSent?.Invoke(this, new RobotTelegram(instructionIdentifier, instruction));
         }
 
         private void ProcessRobotStateUpdate(RobotStatusUpdate robotStatusUpdate)
@@ -247,6 +234,7 @@ namespace Libmirobot.Core
 
             this.RobotStateChanged?.Invoke(this, new RobotStateChangedEventArgs 
             {
+                IsIdle = robotStatusUpdate.IsIdle ?? true,
                 Axis1Angle = robotStatusUpdate.Axis1Angle ?? 0,
                 Axis2Angle = robotStatusUpdate.Axis2Angle ?? 0,
                 Axis3Angle = robotStatusUpdate.Axis3Angle ?? 0,

@@ -8,6 +8,11 @@ namespace Libmirobot.Core
     public class RobotStateChangedEventArgs : EventArgs
     {
         /// <summary>
+        /// True, if the robot currently is idle. False, if the robot currently is in motion.
+        /// </summary>
+        public bool IsIdle { get; set; }
+
+        /// <summary>
         /// Current angle of the first axis.
         /// </summary>
         public double Axis1Angle { get; set; }

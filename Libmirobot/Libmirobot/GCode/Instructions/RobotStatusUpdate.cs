@@ -8,7 +8,12 @@
         /// <summary>
         /// Information, if this update contains new information at all.
         /// </summary>
-        public bool HasData => (this.Axis1Angle.HasValue || this.Axis2Angle.HasValue || this.Axis3Angle.HasValue || this.Axis4Angle.HasValue || this.Axis5Angle.HasValue || this.Axis6Angle.HasValue || this.ExternalSlideRail.HasValue || this.Pwm1.HasValue || this.Pwm2.HasValue || this.XCoordinate.HasValue || this.XRotation.HasValue || this.YCoordinate.HasValue || this.YRotation.HasValue || this.ZCoordinate.HasValue || this.ZRotation.HasValue);
+        public bool HasData => (this.IsIdle.HasValue || this.Axis1Angle.HasValue || this.Axis2Angle.HasValue || this.Axis3Angle.HasValue || this.Axis4Angle.HasValue || this.Axis5Angle.HasValue || this.Axis6Angle.HasValue || this.ExternalSlideRail.HasValue || this.Pwm1.HasValue || this.Pwm2.HasValue || this.XCoordinate.HasValue || this.XRotation.HasValue || this.YCoordinate.HasValue || this.YRotation.HasValue || this.ZCoordinate.HasValue || this.ZRotation.HasValue);
+
+        /// <summary>
+        /// True, if the robot is currently idle. False, if the robot is currently in motion.
+        /// </summary>
+        public bool? IsIdle { get; set; }
 
         /// <summary>
         /// Current angle of the first axis.

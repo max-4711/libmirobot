@@ -24,7 +24,8 @@ namespace libmirobotTests.GCodeInstructions
         const int pumpPwm = 500;
         const int gripperPwm = 50;
 
-        string sampleRobotResponse = string.Format(CultureInfo.InvariantCulture, "<Idle,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Value PWM:{14}>", angle1, angle2, angle3, slideRail, angle4, angle5, angle6, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
+        string sampleRobotIdleResponse = string.Format(CultureInfo.InvariantCulture, "<Idle,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angle1, angle2, angle3, slideRail, angle4, angle5, angle6, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
+        string sampleRobotBusyResponse = string.Format(CultureInfo.InvariantCulture, "<Run,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angle1, angle2, angle3, slideRail, angle4, angle5, angle6, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
 
         [TestMethod]
         [Description("ObtainStatusInstruction should always generate '?' as g code instruction.")]
@@ -38,14 +39,15 @@ namespace libmirobotTests.GCodeInstructions
         }
 
         [TestMethod]
-        [Description("ObtainStatusInstruction should parse the command response into a robot status information object")]
-        public void ParseResponseToStatusInformationObject()
+        [Description("ObtainStatusInstruction should parse the command response of a robot being idle into a robot status information object")]
+        public void ParseIdleResponseToStatusInformationObject()
         {
             var testObject = new ObtainStatusInstruction();
 
-            var testResult = testObject.ProcessResponse(sampleRobotResponse);
+            var testResult = testObject.ProcessResponse(sampleRobotIdleResponse);
 
             Assert.IsTrue(testResult.HasData);
+            Assert.IsTrue(testResult.IsIdle.Value);
             Assert.AreEqual(angle1, testResult.Axis1Angle);
             Assert.AreEqual(angle2, testResult.Axis2Angle);
             Assert.AreEqual(angle3, testResult.Axis3Angle);
@@ -64,12 +66,50 @@ namespace libmirobotTests.GCodeInstructions
         }
 
         [TestMethod]
-        [Description("ObtainStatusInstruction should be able to process a sample response from the robot")]
-        public void BeAbleToProcessRegularResponse()
+        [Description("ObtainStatusInstruction should parse the command response of a robot being idle into a robot status information object")]
+        public void ParseBusyResponseToStatusInformationObject()
         {
             var testObject = new ObtainStatusInstruction();
 
-            var testResult = testObject.CanProcessResponse(sampleRobotResponse);
+            var testResult = testObject.ProcessResponse(sampleRobotBusyResponse);
+
+            Assert.IsTrue(testResult.HasData);
+            Assert.IsFalse(testResult.IsIdle.Value);
+            Assert.AreEqual(angle1, testResult.Axis1Angle);
+            Assert.AreEqual(angle2, testResult.Axis2Angle);
+            Assert.AreEqual(angle3, testResult.Axis3Angle);
+            Assert.AreEqual(angle4, testResult.Axis4Angle);
+            Assert.AreEqual(angle5, testResult.Axis5Angle);
+            Assert.AreEqual(angle6, testResult.Axis6Angle);
+            Assert.AreEqual(slideRail, testResult.ExternalSlideRail);
+            Assert.AreEqual(xCoordinate, testResult.XCoordinate);
+            Assert.AreEqual(yCoordinate, testResult.YCoordinate);
+            Assert.AreEqual(zCoordinate, testResult.ZCoordinate);
+            Assert.AreEqual(xRotation, testResult.XRotation);
+            Assert.AreEqual(yRotation, testResult.YRotation);
+            Assert.AreEqual(zRotation, testResult.ZRotation);
+            Assert.AreEqual(pumpPwm, testResult.Pwm1);
+            Assert.AreEqual(gripperPwm, testResult.Pwm2);
+        }
+
+        [TestMethod]
+        [Description("ObtainStatusInstruction should be able to process a sample response while being idle from the robot")]
+        public void BeAbleToProcessIdleResponse()
+        {
+            var testObject = new ObtainStatusInstruction();
+
+            var testResult = testObject.CanProcessResponse(sampleRobotIdleResponse);
+
+            Assert.IsTrue(testResult);
+        }
+
+        [TestMethod]
+        [Description("ObtainStatusInstruction should be able to process a sample response while being in motion from the robot")]
+        public void BeAbleToProcessInMotionResponse()
+        {
+            var testObject = new ObtainStatusInstruction();
+
+            var testResult = testObject.CanProcessResponse(sampleRobotBusyResponse);
 
             Assert.IsTrue(testResult);
         }

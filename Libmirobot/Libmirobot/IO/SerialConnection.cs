@@ -13,17 +13,17 @@ namespace Libmirobot.IO
     public class SerialConnection : ISerialConnection
     {
         /// <inheritdoc/>
-        public event EventHandler<RobotTelegram> TelegramReceived;
+        public event EventHandler<RobotTelegram>? TelegramReceived;
 
         /// <inheritdoc/>
-        public event EventHandler<RobotTelegram> TelegramSent;
+        public event EventHandler<RobotTelegram>? TelegramSent;
 
         private SerialPort serialPort = new SerialPort();
 
         bool isConnecting = false;
         bool isConnected = false;
         bool useQueueingMode = true;
-        string lastSentInstructionIdentifier;
+        string lastSentInstructionIdentifier = string.Empty;
         Timer telegramSendTimer = new Timer(50); //Mirobot reportedly struggles with receiving instructions in a higher frequency than 20 Hz: http://discuz.wlkata.com/forum.php?mod=viewthread&tid=8&extra=page%3D1
         Queue<RobotTelegram> OutboundTelegramQueue = new Queue<RobotTelegram>();
 
@@ -34,15 +34,15 @@ namespace Libmirobot.IO
         /// <param name="useQueueingMode">If true, instructions will be sent to the hardware with a maximum frequency of 20 Hz and therefore queued at first.</param>
         public SerialConnection(string portName, bool useQueueingMode = true)
         {
-            serialPort.PortName = portName;
-            serialPort.BaudRate = 115200;
-            serialPort.DataBits = 8;
-            serialPort.StopBits = StopBits.One;
+            this.serialPort.PortName = portName;
+            this.serialPort.BaudRate = 115200;
+            this.serialPort.DataBits = 8;
+            this.serialPort.StopBits = StopBits.One;
             this.useQueueingMode = useQueueingMode;
 
             if (this.useQueueingMode)
             {
-                telegramSendTimer.Elapsed += TelegramSendTimer_Elapsed;
+                this.telegramSendTimer.Elapsed += this.TelegramSendTimer_Elapsed;
                 this.telegramSendTimer.AutoReset = true;
             }
         }
@@ -50,8 +50,8 @@ namespace Libmirobot.IO
         /// <inheritdoc/>
         public void AttachRobot(ISixAxisRobot robot)
         {
-            robot.InstructionSent -= Robot_InstructionSent;
-            robot.InstructionSent += Robot_InstructionSent;
+            robot.InstructionSent -= this.Robot_InstructionSent;
+            robot.InstructionSent += this.Robot_InstructionSent;
         }
         
         private void Robot_InstructionSent(object sender, RobotTelegram e)
@@ -89,7 +89,7 @@ namespace Libmirobot.IO
 
         private void SendTelegram(RobotTelegram robotTelegram)
         {
-            lastSentInstructionIdentifier = robotTelegram.InstructionIdentifier;
+            this.lastSentInstructionIdentifier = robotTelegram.InstructionIdentifier;
             this.serialPort.Write(robotTelegram.Data);
             this.TelegramSent?.Invoke(this, robotTelegram);
         }
@@ -97,31 +97,31 @@ namespace Libmirobot.IO
         /// <inheritdoc/>
         public void Connect()
         {
-            if (!isConnecting)
+            if (!this.isConnecting)
             {
-                isConnecting = true;
-                serialPort.Open();
-                serialPort.DataReceived -= SerialPort_DataReceived;
-                serialPort.DataReceived += SerialPort_DataReceived;
-                isConnected = true;
+                this.isConnecting = true;
+                this.serialPort.Open();
+                this.serialPort.DataReceived -= this.SerialPort_DataReceived;
+                this.serialPort.DataReceived += this.SerialPort_DataReceived;
+                this.isConnected = true;
             }
         }
 
         private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {            
             var responseLine = serialPort.ReadLine(); //https://stackoverflow.com/a/12675073
-            this.TelegramReceived?.Invoke(this, new RobotTelegram { InstructionIdentifier = lastSentInstructionIdentifier, Data = responseLine });
+            this.TelegramReceived?.Invoke(this, new RobotTelegram(lastSentInstructionIdentifier, responseLine));
         }
 
         /// <inheritdoc/>
         public void Disconnect()
         {
-            if (isConnected)
+            if (this.isConnected)
             {
-                serialPort.Close();
+                this.serialPort.Close();
 
-                isConnected = false;
-                isConnecting = false;
+                this.isConnected = false;
+                this.isConnecting = false;
             }
         }
 
@@ -135,7 +135,7 @@ namespace Libmirobot.IO
         }
 
         /// <summary>
-        /// Disposes the 
+        /// Disposes the serial connection.
         /// </summary>
         public void Dispose()
         {

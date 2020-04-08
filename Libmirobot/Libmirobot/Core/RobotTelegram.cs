@@ -8,6 +8,17 @@ namespace Libmirobot.Core
     public class RobotTelegram : EventArgs
     {
         /// <summary>
+        /// Instances a new robot telegram.
+        /// </summary>
+        /// <param name="instructionIdentifier">Unique identifier for the instruction type</param>
+        /// <param name="data">Instruction as it will be sent to the robot</param>
+        public RobotTelegram(string instructionIdentifier, string data)
+        {
+            this.InstructionIdentifier = instructionIdentifier;
+            this.Data = data;
+        }
+
+        /// <summary>
         /// G code instruction or hardware response
         /// </summary>
         public string Data { get; set; }
