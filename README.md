@@ -36,6 +36,6 @@ using (var configuredRobot = robotConfigurator.PreconfigureRobot(comPorts[0]))
 Coming soon...
 
 ## Technical remarks
-- Code uses C# 8.0
+- Code uses C# 8.0 and is fully [nullable aware](https://devblogs.microsoft.com/dotnet/embracing-nullable-reference-types/)
 - Compile target is .Net Standard 2.1, which means it is not limited to Windows!
 - On Windows, driver for the robot is needed (can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html))

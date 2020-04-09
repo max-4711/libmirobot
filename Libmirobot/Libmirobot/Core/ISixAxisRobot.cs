@@ -7,7 +7,7 @@ namespace Libmirobot.Core
     /// <summary>
     /// Represents a robot with 6(+1) axes.
     /// </summary>
-    public interface ISixAxisRobot
+    public interface ISixAxisRobot : IDisposable
     {
         /// <summary>
         /// Event being fired, when the robot issues a new command, which now has to be transferred to the hardware.
@@ -18,11 +18,6 @@ namespace Libmirobot.Core
         /// Event being fired, when the robot received a status update from the hardware.
         /// </summary>
         event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
-
-        /// <summary>
-        /// If true, the hardware will automatically be requested to send its current state after executing a state chaning instruction (motion, homing or changes of gripper or pneumatic pump).
-        /// </summary>
-        bool AutoSendStatusUpdateRequests { get; set; }
 
         /// <summary>
         /// Configures the robot to receive messages from the hardware via the serial connection.

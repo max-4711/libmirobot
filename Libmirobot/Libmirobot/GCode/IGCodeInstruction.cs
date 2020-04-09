@@ -11,6 +11,11 @@
         string UniqueIdentifier { get; }
 
         /// <summary>
+        /// Specifies, if the instruction is triggering a movement and therefore status of the robot may have to be refreshed.
+        /// </summary>
+        bool IsMotionInstruction { get; }
+
+        /// <summary>
         /// Return if the instruction is able to process the response from the hardware.
         /// </summary>
         /// <param name="response">Response received from the hardware</param>

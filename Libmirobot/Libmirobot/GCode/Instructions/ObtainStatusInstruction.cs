@@ -13,6 +13,9 @@ namespace Libmirobot.GCode.Instructions
         public string UniqueIdentifier => "GET_STATUS_ALL";
 
         /// <inheritdoc/>
+        public bool IsMotionInstruction => false;
+
+        /// <inheritdoc/>
         public bool CanProcessResponse(string response)
         {
             return (response.StartsWith("<Idle,Angle(ABCDXYZ):") || response.StartsWith("<Run,Angle(ABCDXYZ):")) && response.Contains(",Cartesian coordinate(XYZRxRyRz):") && response.Contains(",Pump PWM:") && response.Contains(",Valve PWM:") && response.EndsWith(">");

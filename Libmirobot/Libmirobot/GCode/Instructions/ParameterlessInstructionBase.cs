@@ -7,6 +7,8 @@ namespace Libmirobot.GCode.Instructions
         /// <inheritdoc/>
         public abstract string UniqueIdentifier { get; set; }
 
+        public abstract bool IsMotionInstruction { get; }
+
         /// <inheritdoc/>
         public string GenerateGCode()
         {

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
-using System.Timers;
 
 namespace Libmirobot.IO
 {
@@ -22,10 +21,7 @@ namespace Libmirobot.IO
 
         bool isConnecting = false;
         bool isConnected = false;
-        bool useQueueingMode = true;
         string lastSentInstructionIdentifier = string.Empty;
-        Timer telegramSendTimer = new Timer(50); //Mirobot reportedly struggles with receiving instructions in a higher frequency than 20 Hz: http://discuz.wlkata.com/forum.php?mod=viewthread&tid=8&extra=page%3D1
-        Queue<RobotTelegram> OutboundTelegramQueue = new Queue<RobotTelegram>();
 
         /// <summary>
         /// Instances a new serial connection using the given port name.
@@ -38,13 +34,6 @@ namespace Libmirobot.IO
             this.serialPort.BaudRate = 115200;
             this.serialPort.DataBits = 8;
             this.serialPort.StopBits = StopBits.One;
-            this.useQueueingMode = useQueueingMode;
-
-            if (this.useQueueingMode)
-            {
-                this.telegramSendTimer.Elapsed += this.TelegramSendTimer_Elapsed;
-                this.telegramSendTimer.AutoReset = true;
-            }
         }
 
         /// <inheritdoc/>
@@ -59,32 +48,8 @@ namespace Libmirobot.IO
             if (!this.isConnected)
                 return;
 
-            if (this.useQueueingMode)
-            {
-                this.OutboundTelegramQueue.Enqueue(e);
 
-                if (!this.telegramSendTimer.Enabled)
-                {
-                    this.telegramSendTimer.Start();
-                }
-            }
-            else
-            {
-                this.SendTelegram(e);
-            }
-        }
-
-        private void TelegramSendTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            if (this.OutboundTelegramQueue.Count > 0)
-            {
-                var telegram = this.OutboundTelegramQueue.Dequeue();
-                this.SendTelegram(telegram);
-            }
-            else
-            {
-                this.telegramSendTimer.Stop();
-            }
+            this.SendTelegram(e);
         }
 
         private void SendTelegram(RobotTelegram robotTelegram)
@@ -139,10 +104,7 @@ namespace Libmirobot.IO
         /// </summary>
         public void Dispose()
         {
-            this.telegramSendTimer.Stop();
             this.serialPort.Close();
-
-            this.telegramSendTimer.Dispose();
             this.serialPort.Dispose();
         }
     }

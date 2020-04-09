@@ -3,7 +3,7 @@
     <metadata>
         <!-- Required elements-->
         <id>libmirobot</id>
-        <version>1.0.8</version>
+        <version>1.1.0</version>
         <description>Inofficial library to control a WLKATA Mirobot. Not affiliated to WLKATA in any way.</description>
         <authors>max4711</authors>
 

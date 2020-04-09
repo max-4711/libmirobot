@@ -12,6 +12,9 @@ namespace Libmirobot.GCode.Instructions
         public string UniqueIdentifier => "HOMING_SIM";
 
         /// <inheritdoc/>
+        public bool IsMotionInstruction => true;
+
+        /// <inheritdoc/>
         public string GenerateGCode(EmptyInstructionParameter inputValue)
         {
             return "$H";

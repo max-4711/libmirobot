@@ -12,6 +12,9 @@ namespace Libmirobot.GCode.Instructions
         public string UniqueIdentifier => "SWITCH_GRIPPER";
 
         /// <inheritdoc/>
+        public bool IsMotionInstruction => true;
+
+        /// <inheritdoc/>
         public string GenerateGCode(IntegerInstructionParameter inputValue)
         {
             if (inputValue.Parameter > 65)

@@ -3,7 +3,9 @@ using Libmirobot.GCode.InstructionParameters;
 using Libmirobot.GCode.Instructions;
 using Libmirobot.IO;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 
 namespace Libmirobot.Core
 {
@@ -18,13 +20,25 @@ namespace Libmirobot.Core
         public event EventHandler<RobotStateChangedEventArgs>? RobotStateChanged;
 
         /// <inheritdoc/>
-        public bool AutoSendStatusUpdateRequests { get; set; } = false;
+        private readonly bool delayInstructionUntilPreviousInstructionCompleted;
 
         private readonly SixAxisRobotSetupParameters setupParameters;
 
-        private SixAxisMirobot(SixAxisRobotSetupParameters setupParameters)
+        private const int TIMER_TICKS_TO_UPDATE_STATUS_REQUEST = 6;
+        private Timer telegramSendTimer = new Timer(50); //Mirobot reportedly struggles with receiving instructions in a higher frequency than 20 Hz: http://discuz.wlkata.com/forum.php?mod=viewthread&tid=8&extra=page%3D1
+        private Queue<RobotTelegram> outboundTelegramQueue = new Queue<RobotTelegram>();
+        private int timerTicksSinceStatusUpdate = 0;
+        private bool readyToSendNewInstructionTelegram = true;
+        private bool noStatusTelegramResponsePending = true;
+
+        private SixAxisMirobot(SixAxisRobotSetupParameters setupParameters, bool delayInstructionUntilPreviousInstructionCompleted)
         {
             this.setupParameters = setupParameters;
+            this.delayInstructionUntilPreviousInstructionCompleted = delayInstructionUntilPreviousInstructionCompleted;
+
+            this.telegramSendTimer.Elapsed += this.TelegramSendTimer_Elapsed;
+            this.telegramSendTimer.AutoReset = true;
+            this.telegramSendTimer.Start();
         }
 
         /// <inheritdoc/>
@@ -34,10 +48,7 @@ namespace Libmirobot.Core
 
             var instructionCode = homingInstruction.GenerateGCode(new EmptyInstructionParameter());
 
-            this.SendInstruction(instructionCode, homingInstruction.UniqueIdentifier);
-
-            if (this.AutoSendStatusUpdateRequests)
-                this.UpdateCurrentPosition();
+            this.QueueInstruction(instructionCode, homingInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -56,7 +67,7 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            this.SendInstruction(instructionCode, axisIncrementInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, axisIncrementInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -75,7 +86,7 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            this.SendInstruction(instructionCode, cartesianIncrementInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, cartesianIncrementInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -94,7 +105,7 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            this.SendInstruction(instructionCode, axisMoveInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, axisMoveInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -113,7 +124,7 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            this.SendInstruction(instructionCode, cartesianMoveInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, cartesianMoveInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -123,10 +134,7 @@ namespace Libmirobot.Core
 
             var instructionCode = airPumpInstruction.GenerateGCode(new IntegerInstructionParameter { Parameter = pwm });
 
-            this.SendInstruction(instructionCode, airPumpInstruction.UniqueIdentifier);
-
-            if (this.AutoSendStatusUpdateRequests)
-                this.UpdateCurrentPosition();
+            this.QueueInstruction(instructionCode, airPumpInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -136,7 +144,7 @@ namespace Libmirobot.Core
 
             var instructionCode = axesHardLimitInstruction.GenerateGCode(new BinaryInstructionParameter { OpenClose = on });
 
-            this.SendInstruction(instructionCode, axesHardLimitInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, axesHardLimitInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -146,7 +154,7 @@ namespace Libmirobot.Core
 
             var instructionCode = axesSoftLimitInstruction.GenerateGCode(new BinaryInstructionParameter { OpenClose = on });
 
-            this.SendInstruction(instructionCode, axesSoftLimitInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, axesSoftLimitInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -156,10 +164,7 @@ namespace Libmirobot.Core
 
             var instructionCode = gripperApertureInstruction.GenerateGCode(new IntegerInstructionParameter { Parameter = pwm });
 
-            this.SendInstruction(instructionCode, gripperApertureInstruction.UniqueIdentifier);
-
-            if (this.AutoSendStatusUpdateRequests)
-                this.UpdateCurrentPosition();
+            this.QueueInstruction(instructionCode, gripperApertureInstruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -168,7 +173,7 @@ namespace Libmirobot.Core
             var instruction = this.setupParameters.UnlockAxesInstruction;
             var instructionCode = instruction.GenerateGCode(new EmptyInstructionParameter());
 
-            this.SendInstruction(instructionCode, instruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, instruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -177,31 +182,7 @@ namespace Libmirobot.Core
             var instruction = this.setupParameters.RequestPositionInstruction;
             var instructionCode = instruction.GenerateGCode(new EmptyInstructionParameter());
 
-            this.SendInstruction(instructionCode, instruction.UniqueIdentifier);
-        }
-
-        /// <summary>
-        /// Created a new instance of six axis mirobot with default configuration.
-        /// </summary>
-        /// <returns>Newly instanciated six axis robot.</returns>
-        public static SixAxisMirobot CreateNew()
-        {
-            return new SixAxisMirobot(new SixAxisRobotSetupParameters(
-                new ObtainStatusInstruction(),
-                new CartesianModeAbsolutePtpMotionInstruction(),
-                new CartesianModeAbsoluteLinMotionInstruction(),
-                new CartesianModeRelativePtpMotionInstruction(),
-                new CartesianModeRelativeLinMotionInstruction(),
-                new AngleModeAbsoluteMotionInstruction(),
-                new AngleModeIncrementalMotionInstruction(),
-                new ToggleAxesSoftLimitInstruction(),
-                new ToggleAxesHardLimitInstruction(),
-                new UnlockAxesInstruction(),
-                new HomingSequentialInstruction(),
-                new HomingSimultaneousInstruction(),
-                new SwitchAirPumpInstruction(),
-                new SwitchGripperInstruction()
-                ));
+            this.QueueInstruction(instructionCode, instruction.UniqueIdentifier);
         }
 
         /// <inheritdoc/>
@@ -211,23 +192,80 @@ namespace Libmirobot.Core
             serialConnection.TelegramReceived += this.SerialConnection_TelegramReceived;
         }
 
+        private void TelegramSendTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (this.readyToSendNewInstructionTelegram == false)
+            {
+                if (this.noStatusTelegramResponsePending)
+                {
+                    this.timerTicksSinceStatusUpdate++;
+                }                
+
+                if (this.timerTicksSinceStatusUpdate > TIMER_TICKS_TO_UPDATE_STATUS_REQUEST)
+                {
+                    this.timerTicksSinceStatusUpdate = 0;
+                    this.noStatusTelegramResponsePending = false;
+
+                    var instruction = this.setupParameters.RequestPositionInstruction;
+                    var instructionCode = instruction.GenerateGCode(new EmptyInstructionParameter());
+                    var telegram = new RobotTelegram(instruction.UniqueIdentifier, instructionCode);
+                    this.SendTelegram(telegram);                    
+                }
+                
+                return;
+            }
+
+            if (this.outboundTelegramQueue.Count > 0)
+            {
+                var telegram = this.outboundTelegramQueue.Dequeue();
+                this.SendTelegram(telegram);
+                if (this.delayInstructionUntilPreviousInstructionCompleted)
+                {
+                    var command = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == telegram.InstructionIdentifier);
+                    if (command != null && command.IsMotionInstruction)
+                    {
+                        this.readyToSendNewInstructionTelegram = false;
+                        this.timerTicksSinceStatusUpdate = 0;
+                        this.noStatusTelegramResponsePending = true;
+                    }
+                }
+            }
+        }
+
         private void SerialConnection_TelegramReceived(object sender, RobotTelegram e)
         {
             var responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.CanProcessResponse(e.Data));
             if (responsedInstruction == null)
-                return;
+                return;            
 
             var updatedRobotState = responsedInstruction.ProcessResponse(e.Data);
+            if (this.delayInstructionUntilPreviousInstructionCompleted)
+            {
+                if (updatedRobotState.HasData)
+                {
+                    this.noStatusTelegramResponsePending = true;
+                }
 
-            this.ProcessRobotStateUpdate(updatedRobotState);
+                if (updatedRobotState.IsIdle == true)
+                {
+                    this.readyToSendNewInstructionTelegram = true;
+                }
+            }
+
+            this.SendRobotStatusUpdate(updatedRobotState);
         }
 
-        private void SendInstruction(string instruction, string instructionIdentifier)
+        private void QueueInstruction(string instruction, string instructionIdentifier)
         {
-            this.InstructionSent?.Invoke(this, new RobotTelegram(instructionIdentifier, instruction));
+            this.outboundTelegramQueue.Enqueue(new RobotTelegram(instructionIdentifier, instruction));
         }
 
-        private void ProcessRobotStateUpdate(RobotStatusUpdate robotStatusUpdate)
+        private void SendTelegram(RobotTelegram robotTelegram)
+        {
+            this.InstructionSent?.Invoke(this, robotTelegram);
+        }
+
+        private void SendRobotStatusUpdate(RobotStatusUpdate robotStatusUpdate)
         {
             if (!robotStatusUpdate.HasData)
                 return;
@@ -251,6 +289,39 @@ namespace Libmirobot.Core
                 YRotation = robotStatusUpdate.YRotation ?? 0,
                 ZRotation = robotStatusUpdate.ZRotation ?? 0
             });
+        }
+
+        /// <summary>
+        /// Frees resources allocated by this robot instance and will stop sending telegrams.
+        /// </summary>
+        public void Dispose()
+        {
+            this.telegramSendTimer.Stop();
+            this.telegramSendTimer.Dispose();
+        }
+
+        /// <summary>
+        /// Created a new instance of six axis mirobot with default configuration.
+        /// </summary>
+        /// <returns>Newly instanciated six axis robot.</returns>
+        public static SixAxisMirobot CreateNew(bool delayInstructionUntilPreviousInstructionCompleted = true)
+        {
+            return new SixAxisMirobot(new SixAxisRobotSetupParameters(
+                new ObtainStatusInstruction(),
+                new CartesianModeAbsolutePtpMotionInstruction(),
+                new CartesianModeAbsoluteLinMotionInstruction(),
+                new CartesianModeRelativePtpMotionInstruction(),
+                new CartesianModeRelativeLinMotionInstruction(),
+                new AngleModeAbsoluteMotionInstruction(),
+                new AngleModeIncrementalMotionInstruction(),
+                new ToggleAxesSoftLimitInstruction(),
+                new ToggleAxesHardLimitInstruction(),
+                new UnlockAxesInstruction(),
+                new HomingSequentialInstruction(),
+                new HomingSimultaneousInstruction(),
+                new SwitchAirPumpInstruction(),
+                new SwitchGripperInstruction()
+                ), delayInstructionUntilPreviousInstructionCompleted);
         }
     }
 }

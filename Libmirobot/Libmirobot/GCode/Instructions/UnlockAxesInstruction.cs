@@ -12,6 +12,9 @@ namespace Libmirobot.GCode.Instructions
         public string UniqueIdentifier => "UNLOCK_AXES_ALL";
 
         /// <inheritdoc/>
+        public bool IsMotionInstruction => false;
+
+        /// <inheritdoc/>
         public string GenerateGCode(EmptyInstructionParameter inputValue)
         {
             return "M50";

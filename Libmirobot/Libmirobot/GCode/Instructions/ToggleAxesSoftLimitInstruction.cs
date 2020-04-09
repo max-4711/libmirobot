@@ -12,6 +12,9 @@ namespace Libmirobot.GCode.Instructions
         public string UniqueIdentifier => "SWITCH_LIMIT_SOFT";
 
         /// <inheritdoc/>
+        public bool IsMotionInstruction => false;
+
+        /// <inheritdoc/>
         public string GenerateGCode(BinaryInstructionParameter inputValue)
         {
             var param = inputValue.OpenClose == true ? 1 : 0;

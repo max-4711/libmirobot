@@ -59,6 +59,7 @@ namespace Libmirobot
         public void Dispose()
         {
             this.TelegramPort.Dispose();
+            this.Robot.Dispose();
         }
     }
 }
