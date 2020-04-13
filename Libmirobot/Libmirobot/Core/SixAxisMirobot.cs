@@ -197,6 +197,26 @@ namespace Libmirobot.Core
             serialConnection.TelegramReceived += this.SerialConnection_TelegramReceived;
         }
 
+        /// <inheritdoc/>
+        public void ClearCommandQueue()
+        {
+            lock (this.outboundTelegramQueue)
+            {
+                this.outboundTelegramQueue.Clear();
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Reset()
+        {
+            lock (this.statusFlagsLockObject)
+            {
+                this.timerTicksSinceStatusUpdate = 0;
+                this.readyToSendNewInstructionTelegram = true;
+                this.noStatusTelegramResponsePending = true;
+            }
+        }
+
         private void TelegramSendTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             lock (this.statusFlagsLockObject)
@@ -222,24 +242,13 @@ namespace Libmirobot.Core
                     return;
                 }
 
-                bool queuedTelegramAvailable = false;
-                lock (this.outboundTelegramQueue)
+                var queuedTelegram = this.TryGetQueuedTelegram();
+                if (queuedTelegram != null)
                 {
-                    queuedTelegramAvailable = this.outboundTelegramQueue.Count > 0;
-                }
-
-
-                if (queuedTelegramAvailable)
-                {
-                    RobotTelegram telegram;
-                    lock (this.outboundTelegramQueue)
-                    {
-                        telegram = this.outboundTelegramQueue.Dequeue();
-                    }                    
-                    this.SendTelegram(telegram);
+                    this.SendTelegram(queuedTelegram);
                     if (this.delayInstructionUntilPreviousInstructionCompleted)
                     {
-                        var command = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == telegram.InstructionIdentifier);
+                        var command = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == queuedTelegram.InstructionIdentifier);
                         if (command != null && command.IsMotionInstruction)
                         {
                             this.readyToSendNewInstructionTelegram = false;
@@ -249,6 +258,21 @@ namespace Libmirobot.Core
                     }
                 }
                 
+            }
+        }
+
+        private RobotTelegram? TryGetQueuedTelegram() //Written manually, because TryDequeue does not exist in .NET Standard 2.0
+        {
+            lock (this.outboundTelegramQueue)
+            {
+                if (this.outboundTelegramQueue.Count > 0)
+                {
+                    return this.outboundTelegramQueue.Dequeue();
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 

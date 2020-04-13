@@ -121,5 +121,15 @@ namespace Libmirobot.Core
         /// </summary>
         /// <param name="pwm">Min (closed) 40, max (open) 65</param>
         void SetGripperAperture(int pwm);
+
+        /// <summary>
+        /// Clears the command queue and thus stops all yet unsent instructions from being sent to the hardware.
+        /// </summary>
+        void ClearCommandQueue();
+
+        /// <summary>
+        /// Will reset all internal status information preventing the robot from sending new instructions after an error occurred. Use only for error recovery. 
+        /// </summary>
+        void Reset();
     }
 }
