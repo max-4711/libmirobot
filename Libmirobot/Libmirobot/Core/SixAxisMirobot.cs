@@ -31,6 +31,8 @@ namespace Libmirobot.Core
         private bool readyToSendNewInstructionTelegram = true;
         private bool noStatusTelegramResponsePending = true;
 
+        private object statusFlagsLockObject = new object();
+
         private SixAxisMirobot(SixAxisRobotSetupParameters setupParameters, bool delayInstructionUntilPreviousInstructionCompleted)
         {
             this.setupParameters = setupParameters;
@@ -194,32 +196,43 @@ namespace Libmirobot.Core
 
         private void TelegramSendTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (this.readyToSendNewInstructionTelegram == false)
+            lock (this.statusFlagsLockObject)
             {
-                if (this.noStatusTelegramResponsePending)
+                if (this.readyToSendNewInstructionTelegram == false)
                 {
-                    this.timerTicksSinceStatusUpdate++;
-                }                
+                    if (this.noStatusTelegramResponsePending)
+                    {
+                        this.timerTicksSinceStatusUpdate++;
+                    }
 
-                if (this.timerTicksSinceStatusUpdate > TIMER_TICKS_TO_UPDATE_STATUS_REQUEST)
-                {
-                    this.timerTicksSinceStatusUpdate = 0;
-                    this.noStatusTelegramResponsePending = false;
+                    if (this.timerTicksSinceStatusUpdate > TIMER_TICKS_TO_UPDATE_STATUS_REQUEST)
+                    {
+                        this.timerTicksSinceStatusUpdate = 0;
+                        this.noStatusTelegramResponsePending = false;
 
-                    var instruction = this.setupParameters.RequestPositionInstruction;
-                    var instructionCode = instruction.GenerateGCode(new EmptyInstructionParameter());
-                    var telegram = new RobotTelegram(instruction.UniqueIdentifier, instructionCode);
-                    this.SendTelegram(telegram);                    
+                        var instruction = this.setupParameters.RequestPositionInstruction;
+                        var instructionCode = instruction.GenerateGCode(new EmptyInstructionParameter());
+                        var telegram = new RobotTelegram(instruction.UniqueIdentifier, instructionCode);
+                        this.SendTelegram(telegram);
+                    }
+
+                    return;
                 }
-                
-                return;
-            }
 
-            lock (this.outboundTelegramQueue)
-            {
-                if (this.outboundTelegramQueue.Count > 0)
+                bool queuedTelegramAvailable = false;
+                lock (this.outboundTelegramQueue)
                 {
-                    var telegram = this.outboundTelegramQueue.Dequeue();
+                    queuedTelegramAvailable = this.outboundTelegramQueue.Count > 0;
+                }
+
+
+                if (queuedTelegramAvailable)
+                {
+                    RobotTelegram telegram;
+                    lock (this.outboundTelegramQueue)
+                    {
+                        telegram = this.outboundTelegramQueue.Dequeue();
+                    }                    
                     this.SendTelegram(telegram);
                     if (this.delayInstructionUntilPreviousInstructionCompleted)
                     {
@@ -232,6 +245,7 @@ namespace Libmirobot.Core
                         }
                     }
                 }
+                
             }
         }
 
@@ -242,16 +256,20 @@ namespace Libmirobot.Core
                 return;            
 
             var updatedRobotState = responsedInstruction.ProcessResponse(e.Data);
-            if (this.delayInstructionUntilPreviousInstructionCompleted)
-            {
-                if (updatedRobotState.HasData)
-                {
-                    this.noStatusTelegramResponsePending = true;
-                }
 
-                if (updatedRobotState.IsIdle == true)
+            lock (this.statusFlagsLockObject)
+            {
+                if (this.delayInstructionUntilPreviousInstructionCompleted)
                 {
-                    this.readyToSendNewInstructionTelegram = true;
+                    if (updatedRobotState.HasData)
+                    {
+                        this.noStatusTelegramResponsePending = true;
+                    }
+
+                    if (updatedRobotState.IsIdle == true)
+                    {
+                        this.readyToSendNewInstructionTelegram = true;
+                    }
                 }
             }
 
