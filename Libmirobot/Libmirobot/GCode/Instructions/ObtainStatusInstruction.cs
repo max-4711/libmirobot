@@ -18,7 +18,7 @@ namespace Libmirobot.GCode.Instructions
         /// <inheritdoc/>
         public bool CanProcessResponse(string response)
         {
-            return (response.StartsWith("<Idle,Angle(ABCDXYZ):") || response.StartsWith("<Run,Angle(ABCDXYZ):")) && response.Contains(",Cartesian coordinate(XYZRxRyRz):") && response.Contains(",Pump PWM:") && response.Contains(",Valve PWM:") && response.EndsWith(">");
+            return (response.StartsWith("<Idle,Angle(ABCDXYZ):") || response.StartsWith("<Run,Angle(ABCDXYZ):") || response.StartsWith("<Home,Angle(ABCDXYZ):")) && response.Contains(",Cartesian coordinate(XYZRxRyRz):") && response.Contains(",Pump PWM:") && response.Contains(",Valve PWM:") && response.EndsWith(">");
         }
 
         /// <inheritdoc/>

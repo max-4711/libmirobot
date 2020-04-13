@@ -1,5 +1,4 @@
-﻿using Libmirobot.GCode;
-using Libmirobot.IO;
+﻿using Libmirobot.IO;
 using System;
 
 namespace Libmirobot.Core

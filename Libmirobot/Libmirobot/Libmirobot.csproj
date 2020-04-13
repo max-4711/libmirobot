@@ -25,7 +25,7 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>max4711</Authors>
     <Company>Studio4711</Company>
     <Description>Inofficial library to control a WLKATA Mirobot. Not affiliated to WLKATA in any way.</Description>
@@ -34,7 +34,9 @@
     <RepositoryUrl>https://github.com/maxkde/libmirobot</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>Mirobot, Six axis robot</PackageTags>
-    <PackageReleaseNotes>Version 1.2.0: Added support for .NET Standard 2.0</PackageReleaseNotes>
+    <PackageReleaseNotes>Version 1.2.1: Fixed multiple bugs which could prevent instructions from being sent to the robot
+
+Version 1.2.0: Added support for .NET Standard 2.0</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

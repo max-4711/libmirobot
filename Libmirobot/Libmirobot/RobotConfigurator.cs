@@ -7,7 +7,7 @@ namespace Libmirobot
     /// <summary>
     /// Helper to simplify the act of setting up a robot and serial port.
     /// </summary>
-    public class RobotConfigurator
+    public static class RobotConfigurator
     {
         //Not a real factory yet; maybe adding that later
         

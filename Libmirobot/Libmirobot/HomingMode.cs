@@ -1,4 +1,4 @@
-﻿namespace Libmirobot.GCode
+﻿namespace Libmirobot
 {
     /// <summary>
     /// Specifies the type of homing mode, which shall be used to perform a homing operation.

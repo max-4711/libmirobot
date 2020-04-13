@@ -27,5 +27,11 @@ namespace Libmirobot.Core
         /// Unique identifier of the g code instruction which was used to generate the g code (or which was most likely the initial trigger for the hardware response).
         /// </summary>
         public string InstructionIdentifier { get; set; }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"{this.Data} ({this.InstructionIdentifier})";
+        }
     }
 }

@@ -55,7 +55,7 @@ namespace Libmirobot.IO
         private void SendTelegram(RobotTelegram robotTelegram)
         {
             this.lastSentInstructionIdentifier = robotTelegram.InstructionIdentifier;
-            this.serialPort.Write(robotTelegram.Data);
+            this.serialPort.WriteLine(robotTelegram.Data);
             this.TelegramSent?.Invoke(this, robotTelegram);
         }
 

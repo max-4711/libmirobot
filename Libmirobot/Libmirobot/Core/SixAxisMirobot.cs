@@ -215,18 +215,21 @@ namespace Libmirobot.Core
                 return;
             }
 
-            if (this.outboundTelegramQueue.Count > 0)
+            lock (this.outboundTelegramQueue)
             {
-                var telegram = this.outboundTelegramQueue.Dequeue();
-                this.SendTelegram(telegram);
-                if (this.delayInstructionUntilPreviousInstructionCompleted)
+                if (this.outboundTelegramQueue.Count > 0)
                 {
-                    var command = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == telegram.InstructionIdentifier);
-                    if (command != null && command.IsMotionInstruction)
+                    var telegram = this.outboundTelegramQueue.Dequeue();
+                    this.SendTelegram(telegram);
+                    if (this.delayInstructionUntilPreviousInstructionCompleted)
                     {
-                        this.readyToSendNewInstructionTelegram = false;
-                        this.timerTicksSinceStatusUpdate = 0;
-                        this.noStatusTelegramResponsePending = true;
+                        var command = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == telegram.InstructionIdentifier);
+                        if (command != null && command.IsMotionInstruction)
+                        {
+                            this.readyToSendNewInstructionTelegram = false;
+                            this.timerTicksSinceStatusUpdate = 0;
+                            this.noStatusTelegramResponsePending = true;
+                        }
                     }
                 }
             }
@@ -257,7 +260,10 @@ namespace Libmirobot.Core
 
         private void QueueInstruction(string instruction, string instructionIdentifier)
         {
-            this.outboundTelegramQueue.Enqueue(new RobotTelegram(instructionIdentifier, instruction));
+            lock (this.outboundTelegramQueue)
+            {
+                this.outboundTelegramQueue.Enqueue(new RobotTelegram(instructionIdentifier, instruction));
+            }            
         }
 
         private void SendTelegram(RobotTelegram robotTelegram)
