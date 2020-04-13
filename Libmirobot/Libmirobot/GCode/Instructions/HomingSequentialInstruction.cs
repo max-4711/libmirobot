@@ -19,5 +19,19 @@ namespace Libmirobot.GCode.Instructions
         {
             return "$HH";
         }
+
+#if NETSTANDARD2_0
+        /// <inheritdoc />
+        public bool CanProcessResponse(string response)
+        {
+            return false;
+        }
+
+        /// <inheritdoc />
+        public RobotStatusUpdate ProcessResponse(string returnValue)
+        {
+            return new RobotStatusUpdate();
+        }
+#endif
     }
 }

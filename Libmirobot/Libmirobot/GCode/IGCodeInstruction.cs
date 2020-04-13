@@ -15,6 +15,22 @@
         /// </summary>
         bool IsMotionInstruction { get; }
 
+
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Return if the instruction is able to process the response from the hardware.
+        /// </summary>
+        /// <param name="response">Response received from the hardware</param>
+        /// <returns>true, if this instruction can process the response or false, if the instruction is not able to process the response.</returns>
+        bool CanProcessResponse(string response);
+
+        /// <summary>
+        /// Parses the response from the hardware to a robot status update object.
+        /// </summary>
+        /// <param name="returnValue">Response received from the hardware</param>
+        /// <returns>Robot status object extracted from the hardware response.</returns>
+        RobotStatusUpdate ProcessResponse(string returnValue);
+#else
         /// <summary>
         /// Return if the instruction is able to process the response from the hardware.
         /// </summary>
@@ -34,6 +50,7 @@
         {
             return new RobotStatusUpdate();
         }
+#endif
     }
 
     /// <summary>

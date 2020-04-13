@@ -1,6 +1,6 @@
 # libmirobot
 
-![.NET Core](https://github.com/maxkde/libmirobot/workflows/.NET%20Core/badge.svg)
+![CI Build (.NET Core 3.1)](https://github.com/maxkde/libmirobot/workflows/.NET%20Core/badge.svg)
 
 ## Description
 Library to generate g code to control the [WLKATA Mirobot](http://www.wlkata.com/site/index.html). No official project and not affiliated to WLKATA at all.
@@ -37,5 +37,6 @@ Coming soon...
 
 ## Technical remarks
 - Code uses C# 8.0 and is fully [nullable aware](https://devblogs.microsoft.com/dotnet/embracing-nullable-reference-types/)
-- Compile target is .Net Standard 2.1, which means it is not limited to Windows!
+- "Main" Compile target is .Net Standard 2.1, which means it is not limited to Windows!
+- As .NET Standard 2.1 requires .NET Core 3.0 and isn't supported by the "classic" .NET Framework at all, a "legacy" .NET Standard 2.0 version is also offered
 - On Windows, driver for the robot is needed (can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html))

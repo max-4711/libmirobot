@@ -1,8 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1'">
+    <DefineConstants>NETSTANDARD2_1</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,8 +23,18 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <NuspecFile>Libmirobot.nuspec</NuspecFile>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.2.0</Version>
+    <Authors>max4711</Authors>
+    <Company>Studio4711</Company>
+    <Description>Inofficial library to control a WLKATA Mirobot. Not affiliated to WLKATA in any way.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/maxkde/libmirobot</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/maxkde/libmirobot</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>Mirobot, Six axis robot</PackageTags>
+    <PackageReleaseNotes>Version 1.2.0: Added support for .NET Standard 2.0</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
