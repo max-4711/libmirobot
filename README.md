@@ -49,9 +49,9 @@ Most important interface in the library, ISixAxisRobot, is being used to control
 - void UpdateCurrentPosition();
 
 The robot will fire events in some cases, which can be subscribed also via the ISixAxisRobot interface. The events are:
-- event EventHandler<RobotTelegram> InstructionSent;
-- event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
-- event EventHandler<RobotErrorEventArgs> RobotErrorOccurred;
+- event EventHandler&lt;RobotTelegram&gt; InstructionSent;
+- event EventHandler&lt;RobotStateChangedEventArgs&gt; RobotStateChanged;
+- event EventHandler&lt;RobotErrorEventArgs&gt; RobotErrorOccurred;
 
 
 The robot will need some configuration, before it can be used (for example wiring to the serial port). It is recommended to use the RobotConfigurator class, as this will produce a fully configured robot, ready for use, which should be sufficient for most use cases.
