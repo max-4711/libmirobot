@@ -48,14 +48,31 @@ Most important interface in the library, ISixAxisRobot, is being used to control
 - void SetAirPumpPower(int pwm);
 - void UpdateCurrentPosition();
 
+The robot will fire events in some cases, which can be subscribed also via the ISixAxisRobot interface. The events are:
+- event EventHandler<RobotTelegram> InstructionSent;
+- event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
+- event EventHandler<RobotErrorEventArgs> RobotErrorOccurred;
+
+
+The robot will need some configuration, before it can be used (for example wiring to the serial port). It is recommended to use the RobotConfigurator class, as this will produce a fully configured robot, ready for use, which should be sufficient for most use cases.
+
 Documentary comments, with detailed information for the purpose of every method and all input parameters, are available and should be automatically shown by IntelliSense while coding ;-)
 
 ## Technical remarks
+
+### General
 - Code uses C# 8.0 and is fully [nullable aware](https://devblogs.microsoft.com/dotnet/embracing-nullable-reference-types/)
 - "Main" Compile target is .Net Standard 2.1, which means it is not limited to Windows!
 - As .NET Standard 2.1 requires .NET Core 3.0 and isn't supported by the "classic" .NET Framework at all, a "legacy" .NET Standard 2.0 version is also offered
 - Documentary comments available for all methods and properties
 - On Windows, driver for the robot is needed (can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html))
+
+
+### Behavioural / Remarkable quirks
+- The library buffers all instructions for the robot and sends one every 50ms at max (this is due to reported problems with the robot receiving commands in a higher frequency than 20 Hz)
+- To prevent some errors with unexpected behaviours, the library waits for the robot to report being in an idle state before sending one motion instruction after another.
+    - To achieve this, the library automatically polls the robot for its state after sending a motion instruction
+    - This behaviour can be deactivated by setting the 'delayInstructionUntilPreviousInstructionCompleted' parameter of the SixAxisMirobot.CreateNew()-method to false
 
 ## Contribution
 Feedback and/or pull requests are always welcome :-)

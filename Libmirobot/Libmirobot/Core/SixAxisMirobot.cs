@@ -18,13 +18,15 @@ namespace Libmirobot.Core
         public event EventHandler<RobotTelegram>? InstructionSent;
         /// <inheritdoc/>
         public event EventHandler<RobotStateChangedEventArgs>? RobotStateChanged;
+        /// <inheritdoc/>
+        public event EventHandler<RobotErrorEventArgs>? RobotErrorOccurred;
 
         /// <inheritdoc/>
         private readonly bool delayInstructionUntilPreviousInstructionCompleted;
 
         private readonly SixAxisRobotSetupParameters setupParameters;
 
-        private const int TIMER_TICKS_TO_UPDATE_STATUS_REQUEST = 6;
+        private readonly int timerTicksToUpdateStatusRequest;
         private Timer telegramSendTimer = new Timer(50); //Mirobot reportedly struggles with receiving instructions in a higher frequency than 20 Hz: http://discuz.wlkata.com/forum.php?mod=viewthread&tid=8&extra=page%3D1
         private Queue<RobotTelegram> outboundTelegramQueue = new Queue<RobotTelegram>();
         private int timerTicksSinceStatusUpdate = 0;
@@ -33,10 +35,11 @@ namespace Libmirobot.Core
 
         private object statusFlagsLockObject = new object();
 
-        private SixAxisMirobot(SixAxisRobotSetupParameters setupParameters, bool delayInstructionUntilPreviousInstructionCompleted)
+        private SixAxisMirobot(SixAxisRobotSetupParameters setupParameters, bool delayInstructionUntilPreviousInstructionCompleted, int timerTicksToUpdateStatusRequest)
         {
             this.setupParameters = setupParameters;
             this.delayInstructionUntilPreviousInstructionCompleted = delayInstructionUntilPreviousInstructionCompleted;
+            this.timerTicksToUpdateStatusRequest = timerTicksToUpdateStatusRequest;
 
             this.telegramSendTimer.Elapsed += this.TelegramSendTimer_Elapsed;
             this.telegramSendTimer.AutoReset = true;
@@ -44,7 +47,7 @@ namespace Libmirobot.Core
         }
 
         /// <inheritdoc/>
-        public void HomeAxes(HomingMode homingMode)
+        public void HomeAxes(HomingMode homingMode = HomingMode.Simultaneous)
         {
             var homingInstruction = homingMode == HomingMode.InSequence ? this.setupParameters.SequentialHomingInstruction : this.setupParameters.SimultaneousHomingInstruction;
 
@@ -54,7 +57,7 @@ namespace Libmirobot.Core
         }
 
         /// <inheritdoc/>
-        public void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed)
+        public void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed = 2000)
         {
             var axisIncrementInstruction = this.setupParameters.AngleRelativeMoveInstruction;
 
@@ -73,7 +76,7 @@ namespace Libmirobot.Core
         }
 
         /// <inheritdoc/>
-        public void IncrementCartesian(float xCoordinateIncrement, float yCoordinateIncrement, float zCoordinateIncrement, float xRotationIncrement, float yRotationIncrement, float zRotationIncrement, int speed, MovementMode movementMode)
+        public void IncrementCartesian(float xCoordinateIncrement, float yCoordinateIncrement, float zCoordinateIncrement, float xRotationIncrement, float yRotationIncrement, float zRotationIncrement, int speed = 2000, MovementMode movementMode = MovementMode.Linear)
         {
             var cartesianIncrementInstruction = movementMode == MovementMode.Linear ? this.setupParameters.CartesianRelativeLinMoveInstruction : this.setupParameters.CartesianRelativePtpMoveInstruction;
 
@@ -92,7 +95,7 @@ namespace Libmirobot.Core
         }
 
         /// <inheritdoc/>
-        public void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed)
+        public void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed = 2000)
         {
             var axisMoveInstruction = this.setupParameters.AngleAbsoluteMoveInstrcution;
 
@@ -111,7 +114,7 @@ namespace Libmirobot.Core
         }
 
         /// <inheritdoc/>
-        public void MoveToCartesian(float xCoordinate, float yCoordinate, float zCoordinate, float xRotation, float yRotation, float zRotation, int speed, MovementMode movementMode)
+        public void MoveToCartesian(float xCoordinate, float yCoordinate, float zCoordinate, float xRotation, float yRotation, float zRotation, int speed = 2000, MovementMode movementMode = MovementMode.Linear)
         {
             var cartesianMoveInstruction = movementMode == MovementMode.Linear ? this.setupParameters.CartesianAbsoluteLinMoveInstruction : this.setupParameters.CartesianAbsolutePtpMoveInstrcution;
 
@@ -205,7 +208,7 @@ namespace Libmirobot.Core
                         this.timerTicksSinceStatusUpdate++;
                     }
 
-                    if (this.timerTicksSinceStatusUpdate > TIMER_TICKS_TO_UPDATE_STATUS_REQUEST)
+                    if (this.timerTicksSinceStatusUpdate > this.timerTicksToUpdateStatusRequest)
                     {
                         this.timerTicksSinceStatusUpdate = 0;
                         this.noStatusTelegramResponsePending = false;
@@ -251,9 +254,16 @@ namespace Libmirobot.Core
 
         private void SerialConnection_TelegramReceived(object sender, RobotTelegram e)
         {
-            var responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.CanProcessResponse(e.Data));
+            if (e.Data.Contains("ALARM"))
+                this.RobotErrorOccurred?.Invoke(this, new RobotErrorEventArgs(e.Data));
+
+            var responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == e.InstructionIdentifier && x.CanProcessResponse(e.Data));
             if (responsedInstruction == null)
-                return;            
+            {
+                responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.CanProcessResponse(e.Data));
+                if (responsedInstruction == null)
+                    return;
+            }
 
             var updatedRobotState = responsedInstruction.ProcessResponse(e.Data);
 
@@ -328,7 +338,7 @@ namespace Libmirobot.Core
         /// Created a new instance of six axis mirobot with default configuration.
         /// </summary>
         /// <returns>Newly instanciated six axis robot.</returns>
-        public static SixAxisMirobot CreateNew(bool delayInstructionUntilPreviousInstructionCompleted = true)
+        public static SixAxisMirobot CreateNew(bool delayInstructionUntilPreviousInstructionCompleted = true, int timerTicksToUpdateStatusRequest = 7)
         {
             return new SixAxisMirobot(new SixAxisRobotSetupParameters(
                 new ObtainStatusInstruction(),
@@ -345,7 +355,7 @@ namespace Libmirobot.Core
                 new HomingSimultaneousInstruction(),
                 new SwitchAirPumpInstruction(),
                 new SwitchGripperInstruction()
-                ), delayInstructionUntilPreviousInstructionCompleted);
+                ), delayInstructionUntilPreviousInstructionCompleted, timerTicksToUpdateStatusRequest);
         }
     }
 }

@@ -19,6 +19,11 @@ namespace Libmirobot.Core
         event EventHandler<RobotStateChangedEventArgs> RobotStateChanged;
 
         /// <summary>
+        /// Event being fired, when the hardware reports an incident. Manual user interaction may be required.
+        /// </summary>
+        event EventHandler<RobotErrorEventArgs> RobotErrorOccurred;
+
+        /// <summary>
         /// Configures the robot to receive messages from the hardware via the serial connection.
         /// </summary>
         /// <param name="serialConnection">Serial connection which the robot will use to receive commands from</param>
@@ -38,9 +43,9 @@ namespace Libmirobot.Core
         /// <param name="xRotation">Target roll angle (rotation around the x axis)</param>
         /// <param name="yRotation">Target pitch angle (rotation around the y axis)</param>
         /// <param name="zRotation">Target yaw angle (rotation around the z axis)</param>
-        /// <param name="speed">Desired maximum speed for movement execution. Specified in mm/min</param>
-        /// <param name="movementMode">Specifies, if the axes coordinate their motion with each other</param>
-        void MoveToCartesian(float xCoordinate, float yCoordinate, float zCoordinate, float xRotation, float yRotation, float zRotation, int speed, MovementMode movementMode);
+        /// <param name="speed">Desired maximum speed for movement execution. Specified in mm/min. Defaults to 2000.</param>
+        /// <param name="movementMode">Specifies, if the axes coordinate their motion with each other. Defaults to MovementMode.Linear.</param>
+        void MoveToCartesian(float xCoordinate, float yCoordinate, float zCoordinate, float xRotation, float yRotation, float zRotation, int speed = 2000, MovementMode movementMode = MovementMode.Linear);
 
         /// <summary>
         /// Instructs the robot to increment (or decrement, if negative numbers provided) his current location and angles by the specified values using the specified movement mode.
@@ -51,9 +56,9 @@ namespace Libmirobot.Core
         /// <param name="xRotationIncrement">Increment/Decrement for the roll angle (rotation around the x axis)</param>
         /// <param name="yRotationIncrement">Increment/Decrement for the pitch angle (rotation around the y axis)</param>
         /// <param name="zRotationIncrement">Increment/Decrement for the yaw angle (rotation around the z axis)</param>
-        /// <param name="speed">Desired maximum speed for movement execution. Specified in mm/min</param>
-        /// <param name="movementMode">Specifies, if the axes coordinate their motion with each other</param>
-        void IncrementCartesian(float xCoordinateIncrement, float yCoordinateIncrement, float zCoordinateIncrement, float xRotationIncrement, float yRotationIncrement, float zRotationIncrement, int speed, MovementMode movementMode);
+        /// <param name="speed">Desired maximum speed for movement execution. Specified in mm/min. Defaults to 2000.</param>
+        /// <param name="movementMode">Specifies, if the axes coordinate their motion with each other. Defaults to MovementMode.Linear.</param>
+        void IncrementCartesian(float xCoordinateIncrement, float yCoordinateIncrement, float zCoordinateIncrement, float xRotationIncrement, float yRotationIncrement, float zRotationIncrement, int speed = 2000, MovementMode movementMode = MovementMode.Linear);
 
         /// <summary>
         /// Instructs the robot to turn each axis to the corresponding angle using the specified movement mode.
@@ -64,8 +69,8 @@ namespace Libmirobot.Core
         /// <param name="axis4">Target angle for axis 4</param>
         /// <param name="axis5">Target angle for axis 5</param>
         /// <param name="axis6">Target angle for axis 6</param>
-        /// <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min</param>
-        void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed);
+        /// <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min. Defaults to 2000.</param>
+        void MoveAxesTo(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed = 2000);
 
         /// <summary>
         /// Instructs the robot to increment (or decrement, if negative numbers provided) his axis angles by the specified values using the specified movement mode.
@@ -76,8 +81,8 @@ namespace Libmirobot.Core
         /// <param name="axis4">Increment/Decrement for axis 4</param>
         /// <param name="axis5">Increment/Decrement for axis 5</param>
         /// <param name="axis6">Increment/Decrement for axis 6</param>
-        /// <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min</param>
-        void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed);
+        /// <param name="speed">Desired maximum soeed for movement execution. Specified in mm/min. Defaults to 2000.</param>
+        void IncrementAxes(float axis1, float axis2, float axis3, float axis4, float axis5, float axis6, int speed = 2000);
 
         /// <summary>
         /// Instructs the robot to unlock all axes directly, even if no homing operation was executed.
