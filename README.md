@@ -68,11 +68,15 @@ Documentary comments, with detailed information for the purpose of every method,
 - On Windows and macOS, a driver for the robot is needed (can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html))
 
 
-### Behavioural / Remarkable quirks
+### Behavioural / Remarkable quirks / Special features
 - The library buffers all instructions for the robot and sends one every 50ms at max (this is due to reported problems with the robot receiving commands in a higher frequency than 20 Hz)
-- To prevent some errors with unexpected behaviours, the library waits for the robot to report being in an idle state before sending one motion instruction after another.
+- To prevent some errors with instructions being sent to the robot while it is busy, the library waits for the robot to report being in an idle state before sending one motion instruction after another.
     - To achieve this, the library automatically polls the robot for its state after sending a motion instruction
     - This behaviour can be deactivated by setting the 'delayInstructionUntilPreviousInstructionCompleted' parameter of the SixAxisMirobot.CreateNew()-method to false
+- The library can automatically detect, if the robot refuses instruction execution because of locked axes and unlock them by executing a homing operation (and then repeating the failed instruction)
+    - This behaviour can be deactivated by setting the 'autoHomeAxes' parameter of the SixAxisMirobot.CreateNew()-method to false
+    - This function is not available, if the aforementioned option 'delayInstructionUntilPreviousInstructionCompleted' is disabled
+
 
 ## Contribution
 Feedback and/or pull requests are always welcome :-)

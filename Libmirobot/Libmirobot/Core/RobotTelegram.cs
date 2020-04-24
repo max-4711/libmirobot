@@ -28,6 +28,16 @@ namespace Libmirobot.Core
         /// </summary>
         public string InstructionIdentifier { get; set; }
 
+        /// <summary>
+        /// Returns, based on the current angle mode target position of the robot, the new angle mode robot target position as it is modified by the telegram
+        /// </summary>
+        public Func<RobotPositionParameter?, RobotPositionParameter?>? RobotAngleTargetPositionModificator;
+
+        /// <summary>
+        /// Returns, based on the current cartesian mode target position of the robot, the new cartesian mode robot target position as it is modified by the telegram
+        /// </summary>
+        public Func<RobotPositionParameter?, RobotPositionParameter?>? RobotCartesianTargetPositionModificator;
+
         /// <inheritdoc/>
         public override string ToString()
         {

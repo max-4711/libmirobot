@@ -24,6 +24,11 @@ namespace Libmirobot.Core
         event EventHandler<RobotErrorEventArgs> RobotErrorOccurred;
 
         /// <summary>
+        /// Event being fired, when the hardware reports being resetted. Re-performing the homing operation may be necessary.
+        /// </summary>
+        event EventHandler<RobotResetEventArgs> RobotResetOccurred;
+
+        /// <summary>
         /// Configures the robot to receive messages from the hardware via the serial connection.
         /// </summary>
         /// <param name="serialConnection">Serial connection which the robot will use to receive commands from</param>

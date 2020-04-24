@@ -4,6 +4,7 @@ using Libmirobot.GCode.Instructions;
 using Libmirobot.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Timers;
 
@@ -20,9 +21,11 @@ namespace Libmirobot.Core
         public event EventHandler<RobotStateChangedEventArgs>? RobotStateChanged;
         /// <inheritdoc/>
         public event EventHandler<RobotErrorEventArgs>? RobotErrorOccurred;
-
         /// <inheritdoc/>
+        public event EventHandler<RobotResetEventArgs>? RobotResetOccurred;
+
         private readonly bool delayInstructionUntilPreviousInstructionCompleted;
+        private readonly bool autoHomeAxes;
 
         private readonly SixAxisRobotSetupParameters setupParameters;
 
@@ -32,14 +35,21 @@ namespace Libmirobot.Core
         private int timerTicksSinceStatusUpdate = 0;
         private bool readyToSendNewInstructionTelegram = true;
         private bool noStatusTelegramResponsePending = true;
+        private bool homingNeeded = false;
 
         private object statusFlagsLockObject = new object();
 
-        private SixAxisMirobot(SixAxisRobotSetupParameters setupParameters, bool delayInstructionUntilPreviousInstructionCompleted, int timerTicksToUpdateStatusRequest)
+        private RobotStatusUpdate? lastRobotStatusUpdate = null;
+        private RobotPositionParameter? angleModeTargetPosition = null;
+        private RobotPositionParameter? cartesianModeTargetPosition = null;
+        private RobotTelegram? lastSentMotionInstruction = null;
+
+        private SixAxisMirobot(SixAxisRobotSetupParameters setupParameters, bool delayInstructionUntilPreviousInstructionCompleted, int timerTicksToUpdateStatusRequest, bool autoHomeAxes)
         {
             this.setupParameters = setupParameters;
             this.delayInstructionUntilPreviousInstructionCompleted = delayInstructionUntilPreviousInstructionCompleted;
             this.timerTicksToUpdateStatusRequest = timerTicksToUpdateStatusRequest;
+            this.autoHomeAxes = autoHomeAxes;
 
             this.telegramSendTimer.Elapsed += this.TelegramSendTimer_Elapsed;
             this.telegramSendTimer.AutoReset = true;
@@ -53,7 +63,12 @@ namespace Libmirobot.Core
 
             var instructionCode = homingInstruction.GenerateGCode(new EmptyInstructionParameter());
 
-            this.QueueInstruction(instructionCode, homingInstruction.UniqueIdentifier);
+            Func<RobotPositionParameter?, RobotPositionParameter?> positionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                return null;
+            };
+
+            this.QueueInstruction(instructionCode, homingInstruction.UniqueIdentifier, positionModificator, positionModificator);
         }
 
         /// <inheritdoc/>
@@ -72,7 +87,28 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            this.QueueInstruction(instructionCode, axisIncrementInstruction.UniqueIdentifier);
+            Func<RobotPositionParameter?, RobotPositionParameter?> angleTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                if (oldTargetPosition == null)
+                    return null;
+
+                return new RobotPositionParameter
+                {
+                    PositioningParameter1 = oldTargetPosition.PositioningParameter1 + axis1,
+                    PositioningParameter2 = oldTargetPosition.PositioningParameter2 + axis2,
+                    PositioningParameter3 = oldTargetPosition.PositioningParameter3 + axis3,
+                    PositioningParameter4 = oldTargetPosition.PositioningParameter4 + axis4,
+                    PositioningParameter5 = oldTargetPosition.PositioningParameter5 + axis5,
+                    PositioningParameter6 = oldTargetPosition.PositioningParameter6 + axis6
+                };
+            };
+
+            Func<RobotPositionParameter?, RobotPositionParameter?> cartesianTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                return null;
+            };
+
+            this.QueueInstruction(instructionCode, axisIncrementInstruction.UniqueIdentifier, angleTargetPositionModificator, cartesianTargetPositionModificator);
         }
 
         /// <inheritdoc/>
@@ -91,7 +127,28 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            this.QueueInstruction(instructionCode, cartesianIncrementInstruction.UniqueIdentifier);
+            Func<RobotPositionParameter?, RobotPositionParameter?> cartesianTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                if (oldTargetPosition == null)
+                    return null;
+
+                return new RobotPositionParameter
+                {
+                    PositioningParameter1 = oldTargetPosition.PositioningParameter1 + xCoordinateIncrement,
+                    PositioningParameter2 = oldTargetPosition.PositioningParameter2 + yCoordinateIncrement,
+                    PositioningParameter3 = oldTargetPosition.PositioningParameter3 + zCoordinateIncrement,
+                    PositioningParameter4 = oldTargetPosition.PositioningParameter4 + xRotationIncrement,
+                    PositioningParameter5 = oldTargetPosition.PositioningParameter5 + yRotationIncrement,
+                    PositioningParameter6 = oldTargetPosition.PositioningParameter6 + zRotationIncrement
+                };
+            };
+
+            Func<RobotPositionParameter?, RobotPositionParameter?> angleTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                return null;
+            };
+
+            this.QueueInstruction(instructionCode, cartesianIncrementInstruction.UniqueIdentifier, angleTargetPositionModificator, cartesianTargetPositionModificator);
         }
 
         /// <inheritdoc/>
@@ -110,7 +167,25 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            this.QueueInstruction(instructionCode, axisMoveInstruction.UniqueIdentifier);
+            Func<RobotPositionParameter?, RobotPositionParameter?> angleTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                return new RobotPositionParameter
+                {
+                    PositioningParameter1 = axis1,
+                    PositioningParameter2 = axis2,
+                    PositioningParameter3 = axis3,
+                    PositioningParameter4 = axis4,
+                    PositioningParameter5 = axis5,
+                    PositioningParameter6 = axis6
+                };
+            };
+
+            Func<RobotPositionParameter?, RobotPositionParameter?> cartesianTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                return null;
+            };
+
+            this.QueueInstruction(instructionCode, axisMoveInstruction.UniqueIdentifier, angleTargetPositionModificator, cartesianTargetPositionModificator);
         }
 
         /// <inheritdoc/>
@@ -129,7 +204,25 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            this.QueueInstruction(instructionCode, cartesianMoveInstruction.UniqueIdentifier);
+            Func<RobotPositionParameter?, RobotPositionParameter?> cartesianTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                return new RobotPositionParameter
+                {
+                    PositioningParameter1 = xCoordinate,
+                    PositioningParameter2 = yCoordinate,
+                    PositioningParameter3 = zCoordinate,
+                    PositioningParameter4 = xRotation,
+                    PositioningParameter5 = yRotation,
+                    PositioningParameter6 = zRotation
+                };
+            };
+
+            Func<RobotPositionParameter?, RobotPositionParameter?> angleTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            {
+                return null;
+            };
+
+            this.QueueInstruction(instructionCode, cartesianMoveInstruction.UniqueIdentifier, angleTargetPositionModificator, cartesianTargetPositionModificator);
         }
 
         /// <inheritdoc/>
@@ -139,7 +232,7 @@ namespace Libmirobot.Core
 
             var instructionCode = airPumpInstruction.GenerateGCode(new IntegerInstructionParameter { Parameter = pwm });
 
-            this.QueueInstruction(instructionCode, airPumpInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, airPumpInstruction.UniqueIdentifier, null, null);
         }
 
         /// <inheritdoc/>
@@ -149,7 +242,7 @@ namespace Libmirobot.Core
 
             var instructionCode = axesHardLimitInstruction.GenerateGCode(new BinaryInstructionParameter { OpenClose = on });
 
-            this.QueueInstruction(instructionCode, axesHardLimitInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, axesHardLimitInstruction.UniqueIdentifier, null, null);
         }
 
         /// <inheritdoc/>
@@ -159,7 +252,7 @@ namespace Libmirobot.Core
 
             var instructionCode = axesSoftLimitInstruction.GenerateGCode(new BinaryInstructionParameter { OpenClose = on });
 
-            this.QueueInstruction(instructionCode, axesSoftLimitInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, axesSoftLimitInstruction.UniqueIdentifier, null, null);
         }
 
         /// <inheritdoc/>
@@ -169,7 +262,7 @@ namespace Libmirobot.Core
 
             var instructionCode = gripperApertureInstruction.GenerateGCode(new IntegerInstructionParameter { Parameter = pwm });
 
-            this.QueueInstruction(instructionCode, gripperApertureInstruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, gripperApertureInstruction.UniqueIdentifier, null, null);
         }
 
         /// <inheritdoc/>
@@ -178,7 +271,7 @@ namespace Libmirobot.Core
             var instruction = this.setupParameters.UnlockAxesInstruction;
             var instructionCode = instruction.GenerateGCode(new EmptyInstructionParameter());
 
-            this.QueueInstruction(instructionCode, instruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, instruction.UniqueIdentifier, null, null);
         }
 
         /// <inheritdoc/>
@@ -187,7 +280,7 @@ namespace Libmirobot.Core
             var instruction = this.setupParameters.RequestPositionInstruction;
             var instructionCode = instruction.GenerateGCode(new EmptyInstructionParameter());
 
-            this.QueueInstruction(instructionCode, instruction.UniqueIdentifier);
+            this.QueueInstruction(instructionCode, instruction.UniqueIdentifier, null, null);
         }
 
         /// <inheritdoc/>
@@ -214,6 +307,8 @@ namespace Libmirobot.Core
                 this.timerTicksSinceStatusUpdate = 0;
                 this.readyToSendNewInstructionTelegram = true;
                 this.noStatusTelegramResponsePending = true;
+                this.homingNeeded = false;
+                this.lastRobotStatusUpdate = null;
             }
         }
 
@@ -221,6 +316,7 @@ namespace Libmirobot.Core
         {
             lock (this.statusFlagsLockObject)
             {
+                //Need to request status first?
                 if (this.readyToSendNewInstructionTelegram == false)
                 {
                     if (this.noStatusTelegramResponsePending)
@@ -242,14 +338,72 @@ namespace Libmirobot.Core
                     return;
                 }
 
+                //Need to perform homing, because reset has occured or homing wasn't performed yet at all?
+                if (this.autoHomeAxes && this.homingNeeded)
+                {
+                    var homingInstruction = this.setupParameters.SimultaneousHomingInstruction;
+                    var homingGCode = homingInstruction.GenerateGCode(new EmptyInstructionParameter());
+                    var homingTelegram = new RobotTelegram(homingInstruction.UniqueIdentifier, homingGCode);
+                    homingTelegram.RobotAngleTargetPositionModificator = (RobotPositionParameter? rpp) => null;
+                    homingTelegram.RobotCartesianTargetPositionModificator = (RobotPositionParameter? rpp) => null;
+                    this.angleModeTargetPosition = null;
+                    this.cartesianModeTargetPosition = null;
+                    this.lastSentMotionInstruction = homingTelegram;
+                    this.SendTelegram(homingTelegram);
+                    this.homingNeeded = false;
+
+                    if (this.delayInstructionUntilPreviousInstructionCompleted)
+                    {
+                        this.readyToSendNewInstructionTelegram = false;
+                        this.timerTicksSinceStatusUpdate = 0;
+                        this.noStatusTelegramResponsePending = true;
+                    }
+
+                    return;
+                }
+
+                //Need to re-send previous motion instruction because execution failed? (bound to auto-home-setting, because motion->error->homing->motion can be seen as part of auto-home-function)
+                if (this.autoHomeAxes && this.lastRobotStatusUpdate != null && this.lastRobotStatusUpdate.IsIdle == true && !this.RobotIsAtTargetPosition())
+                {
+                    if (this.lastSentMotionInstruction != null)
+                    {
+                        this.SendTelegram(this.lastSentMotionInstruction);
+                        if (this.delayInstructionUntilPreviousInstructionCompleted)
+                        {
+                            this.readyToSendNewInstructionTelegram = false;
+                            this.timerTicksSinceStatusUpdate = 0;
+                            this.noStatusTelegramResponsePending = true;
+                        }
+                        return;
+                    }
+                }
+
+                //Finally: Ready to send next 'regular' instruction
                 var queuedTelegram = this.TryGetQueuedTelegram();
                 if (queuedTelegram != null)
                 {
+                    var instructionIsMotionInstruction = this.setupParameters.AllInstructions.Any(x => x.UniqueIdentifier == queuedTelegram.InstructionIdentifier && x.IsMotionInstruction);
+                    if (instructionIsMotionInstruction)
+                    {
+                        this.lastSentMotionInstruction = queuedTelegram;
+                        if (queuedTelegram.RobotAngleTargetPositionModificator != null)
+                        {
+                            this.angleModeTargetPosition = queuedTelegram.RobotAngleTargetPositionModificator(RobotPositionParameter.FromRobotStatusUpdateAngle(this.lastRobotStatusUpdate));
+                        }
+                        if (queuedTelegram.RobotCartesianTargetPositionModificator != null)
+                        {
+                            this.cartesianModeTargetPosition = queuedTelegram.RobotCartesianTargetPositionModificator(RobotPositionParameter.FromRobotStatusUpdateCartesian(this.lastRobotStatusUpdate));
+                        }
+                    }
+                    else
+                    {
+                        this.lastSentMotionInstruction = null;
+                    }
+
                     this.SendTelegram(queuedTelegram);
                     if (this.delayInstructionUntilPreviousInstructionCompleted)
                     {
-                        var command = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == queuedTelegram.InstructionIdentifier);
-                        if (command != null && command.IsMotionInstruction)
+                        if (instructionIsMotionInstruction)
                         {
                             this.readyToSendNewInstructionTelegram = false;
                             this.timerTicksSinceStatusUpdate = 0;
@@ -259,6 +413,31 @@ namespace Libmirobot.Core
                 }
                 
             }
+        }
+
+        private bool RobotIsAtTargetPosition()
+        {
+            if (this.lastRobotStatusUpdate == null)
+                return true;
+
+            if (this.angleModeTargetPosition == null && this.cartesianModeTargetPosition == null)
+                return true;
+
+            if (this.angleModeTargetPosition != null)
+            {
+                var currentAnglePosition = RobotPositionParameter.FromRobotStatusUpdateAngle(this.lastRobotStatusUpdate);
+                if (currentAnglePosition == this.angleModeTargetPosition)
+                    return true;
+            }
+
+            if (this.cartesianModeTargetPosition != null)
+            {
+                var currentCartesianPosition = RobotPositionParameter.FromRobotStatusUpdateCartesian(this.lastRobotStatusUpdate);
+                if (currentCartesianPosition == this.cartesianModeTargetPosition)
+                    return true;
+            }
+
+            return false;
         }
 
         private RobotTelegram? TryGetQueuedTelegram() //Written manually, because TryDequeue does not exist in .NET Standard 2.0
@@ -279,7 +458,38 @@ namespace Libmirobot.Core
         private void SerialConnection_TelegramReceived(object sender, RobotTelegram e)
         {
             if (e.Data.Contains("ALARM"))
+            {
                 this.RobotErrorOccurred?.Invoke(this, new RobotErrorEventArgs(e.Data));
+                lock (this.statusFlagsLockObject)
+                {
+                    this.angleModeTargetPosition = null;
+                    this.cartesianModeTargetPosition = null;
+                }                
+            }
+            else if (e.Data.Contains("Qinnew Robot") || e.Data.Contains(" based on Grbl "))
+            {
+                this.RobotResetOccurred?.Invoke(this, new RobotResetEventArgs());
+                lock (this.statusFlagsLockObject)
+                {
+                    this.homingNeeded = true;
+                }                
+            }
+            else if (e.Data.Contains("Locked status"))
+            {
+                lock (this.statusFlagsLockObject)
+                {
+                    this.homingNeeded = true;
+                }
+            }
+            else if (e.Data.Contains("Soft limit") || e.Data.Contains("Hard limit"))
+            {
+                this.RobotErrorOccurred?.Invoke(this, new RobotErrorEventArgs(e.Data));
+                lock (this.statusFlagsLockObject)
+                {
+                    this.angleModeTargetPosition = null;
+                    this.cartesianModeTargetPosition = null;
+                }                
+            }
 
             var responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == e.InstructionIdentifier && x.CanProcessResponse(e.Data));
             if (responsedInstruction == null)
@@ -305,16 +515,23 @@ namespace Libmirobot.Core
                         this.readyToSendNewInstructionTelegram = true;
                     }
                 }
+
+                if (updatedRobotState.HasData)
+                    this.lastRobotStatusUpdate = updatedRobotState;
             }
 
             this.SendRobotStatusUpdate(updatedRobotState);
         }
 
-        private void QueueInstruction(string instruction, string instructionIdentifier)
+        private void QueueInstruction(string instruction, string instructionIdentifier, Func<RobotPositionParameter?, RobotPositionParameter?>? robotAngleTargetPositionModificator, Func<RobotPositionParameter?, RobotPositionParameter?>? robotCartesianTargetPositionModificator)
         {
+            var telegram = new RobotTelegram(instructionIdentifier, instruction);
+            telegram.RobotAngleTargetPositionModificator = robotAngleTargetPositionModificator;
+            telegram.RobotCartesianTargetPositionModificator = robotCartesianTargetPositionModificator;
+
             lock (this.outboundTelegramQueue)
             {
-                this.outboundTelegramQueue.Enqueue(new RobotTelegram(instructionIdentifier, instruction));
+                this.outboundTelegramQueue.Enqueue(telegram);
             }            
         }
 
@@ -326,7 +543,7 @@ namespace Libmirobot.Core
         private void SendRobotStatusUpdate(RobotStatusUpdate robotStatusUpdate)
         {
             if (!robotStatusUpdate.HasData)
-                return;
+                return;            
 
             this.RobotStateChanged?.Invoke(this, new RobotStateChangedEventArgs 
             {
@@ -361,9 +578,15 @@ namespace Libmirobot.Core
         /// <summary>
         /// Created a new instance of six axis mirobot with default configuration.
         /// </summary>
+        /// <param name="autoHomeAxes">If true, a homing operation will automatically be executed if needed. Only available, if 'delayInstructionUntilPreviousInstructionCompleted' is true.</param>
+        /// <param name="delayInstructionUntilPreviousInstructionCompleted">If true, motion instructions will be sent to the hardware one after another, only if the previous instruction is completed.</param>
+        /// <param name="timerTicksToUpdateStatusRequest">Specifies, how often motion instruction completion is being polled from the hardware if 'delayInstructionUntilPreviousInstructionCompleted' is true (value will be multiplicated with 50 ms)</param>
         /// <returns>Newly instanciated six axis robot.</returns>
-        public static SixAxisMirobot CreateNew(bool delayInstructionUntilPreviousInstructionCompleted = true, int timerTicksToUpdateStatusRequest = 7)
+        public static SixAxisMirobot CreateNew(bool delayInstructionUntilPreviousInstructionCompleted = true, int timerTicksToUpdateStatusRequest = 7, bool autoHomeAxes = true)
         {
+            if (delayInstructionUntilPreviousInstructionCompleted == false)
+                autoHomeAxes = false;
+
             return new SixAxisMirobot(new SixAxisRobotSetupParameters(
                 new ObtainStatusInstruction(),
                 new CartesianModeAbsolutePtpMotionInstruction(),
@@ -379,7 +602,7 @@ namespace Libmirobot.Core
                 new HomingSimultaneousInstruction(),
                 new SwitchAirPumpInstruction(),
                 new SwitchGripperInstruction()
-                ), delayInstructionUntilPreviousInstructionCompleted, timerTicksToUpdateStatusRequest);
+                ), delayInstructionUntilPreviousInstructionCompleted, timerTicksToUpdateStatusRequest, autoHomeAxes);
         }
     }
 }
