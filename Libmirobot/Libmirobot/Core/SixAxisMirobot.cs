@@ -344,11 +344,6 @@ namespace Libmirobot.Core
                     var homingInstruction = this.setupParameters.SimultaneousHomingInstruction;
                     var homingGCode = homingInstruction.GenerateGCode(new EmptyInstructionParameter());
                     var homingTelegram = new RobotTelegram(homingInstruction.UniqueIdentifier, homingGCode);
-                    homingTelegram.RobotAngleTargetPositionModificator = (RobotPositionParameter? rpp) => null;
-                    homingTelegram.RobotCartesianTargetPositionModificator = (RobotPositionParameter? rpp) => null;
-                    this.angleModeTargetPosition = null;
-                    this.cartesianModeTargetPosition = null;
-                    this.lastSentMotionInstruction = homingTelegram;
                     this.SendTelegram(homingTelegram);
                     this.homingNeeded = false;
 
@@ -363,9 +358,9 @@ namespace Libmirobot.Core
                 }
 
                 //Need to re-send previous motion instruction because execution failed? (bound to auto-home-setting, because motion->error->homing->motion can be seen as part of auto-home-function)
-                if (this.autoHomeAxes && this.lastRobotStatusUpdate != null && this.lastRobotStatusUpdate.IsIdle == true && !this.RobotIsAtTargetPosition())
+                if (this.autoHomeAxes && this.lastRobotStatusUpdate != null && this.lastRobotStatusUpdate.IsIdle == true && this.lastSentMotionInstruction != null)
                 {
-                    if (this.lastSentMotionInstruction != null)
+                    if (!this.RobotIsAtTargetPosition())
                     {
                         this.SendTelegram(this.lastSentMotionInstruction);
                         if (this.delayInstructionUntilPreviousInstructionCompleted)
@@ -376,6 +371,7 @@ namespace Libmirobot.Core
                         }
                         return;
                     }
+                    this.lastSentMotionInstruction = null; //This line has no impact on functionality, but will prevent the RobotIsAtTargetPosition from being executed in the timer loop
                 }
 
                 //Finally: Ready to send next 'regular' instruction
@@ -472,7 +468,11 @@ namespace Libmirobot.Core
                 lock (this.statusFlagsLockObject)
                 {
                     this.homingNeeded = true;
-                }                
+
+                    this.noStatusTelegramResponsePending = true;
+                    this.timerTicksSinceStatusUpdate = 0;
+                    //Optional: Add 'this.readyToSendNewInstructionTelegram = true;' here to skip status request after reboot
+                }
             }
             else if (e.Data.Contains("Locked status"))
             {

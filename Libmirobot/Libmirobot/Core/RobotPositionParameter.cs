@@ -1,4 +1,5 @@
 ﻿using Libmirobot.GCode;
+using System;
 
 namespace Libmirobot.Core
 {
@@ -86,18 +87,18 @@ namespace Libmirobot.Core
         /// </summary>
         public static bool operator ==(RobotPositionParameter? a, RobotPositionParameter? b)
         {
-            if (a == null && b == null)
+            if (object.ReferenceEquals(a, null) && object.ReferenceEquals(b, null))
                 return true;
 
-            if (a == null || b == null)
+            if (object.ReferenceEquals(a, null) || object.ReferenceEquals(b, null))
                 return false;
 
-            return a.PositioningParameter1 == b.PositioningParameter1 &&
-                a.PositioningParameter2 == b.PositioningParameter2 &&
-                a.PositioningParameter3 == b.PositioningParameter3 &&
-                a.PositioningParameter4 == b.PositioningParameter6 &&
-                a.PositioningParameter5 == b.PositioningParameter4 &&
-                a.PositioningParameter6 == b.PositioningParameter6;
+            return Math.Abs(a.PositioningParameter1 - b.PositioningParameter1) < 0.05 &&
+                Math.Abs(a.PositioningParameter2 - b.PositioningParameter2) < 0.05 &&
+                Math.Abs(a.PositioningParameter3 - b.PositioningParameter3) < 0.05 &&
+                Math.Abs(a.PositioningParameter4 - b.PositioningParameter4) < 0.05 &&
+                Math.Abs(a.PositioningParameter5 - b.PositioningParameter5) < 0.05 &&
+                Math.Abs(a.PositioningParameter6 - b.PositioningParameter6) < 0.05;
         }
 
         /// <summary>

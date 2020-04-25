@@ -75,7 +75,7 @@ Documentary comments, with detailed information for the purpose of every method,
     - This behaviour can be deactivated by setting the 'delayInstructionUntilPreviousInstructionCompleted' parameter of the SixAxisMirobot.CreateNew()-method to false
 - The library can automatically detect, if the robot refuses instruction execution because of locked axes and unlock them by executing a homing operation (and then repeating the failed instruction)
     - This behaviour can be deactivated by setting the 'autoHomeAxes' parameter of the SixAxisMirobot.CreateNew()-method to false
-    - This function is not available, if the aforementioned option 'delayInstructionUntilPreviousInstructionCompleted' is disabled
+    - This function is not available, if the aforementioned option 'delayInstructionUntilPreviousInstructionCompleted' is deactivated
 
 
 ## Contribution
