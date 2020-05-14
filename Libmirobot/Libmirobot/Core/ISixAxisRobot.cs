@@ -128,6 +128,14 @@ namespace Libmirobot.Core
         void SetGripperAperture(int pwm);
 
         /// <summary>
+        /// Changes the status of the auto homing setting.
+        /// </summary>
+        /// <param name="enabled">If true, auto homing will be enabled, else it will be disabled</param>
+        /// <param name="delayUntilCommandCompletion">If true, the setting change takes action after all instructions previously sent to the robot were completed. Else it will take action immediately. Defaults to true.</param>
+        /// <remarks>Auto homing will only work, if the robot is set up to delay instruction sending until the previous motion instruction has been completed ('delayInstructionUntilPreviousInstructionCompleted' = true at robot setup)</remarks>
+        void SetAutoHomingStatus(bool enabled, bool delayUntilCommandCompletion = true);
+
+        /// <summary>
         /// Clears the command queue and thus stops all yet unsent instructions from being sent to the hardware.
         /// </summary>
         void ClearCommandQueue();

@@ -31,7 +31,8 @@ using Libmirobot;
 var comPorts = RobotConfigurator.GetAvailableComports();
 using (var configuredRobot = RobotConfigurator.PreconfigureRobot(comPorts[0])) //Select the com port fitting to your setup, doesn't have to be comPorts[0]!
 {
-    configuredRobot.Robot.HomeAxes(HomingMode.InSequence);
+    //Homing will be performed automatically, if needed (see 'Special features' down below):
+    //configuredRobot.Robot.HomeAxes(HomingMode.InSequence);
     configuredRobot.Robot.MoveToCartesian(150, 20, 55, 0, 0, 0, 2000, MovementMode.Linear);
 }
 ```
@@ -52,6 +53,7 @@ The robot will fire events in some cases, which can be subscribed also via the I
 - event EventHandler&lt;RobotTelegram&gt; InstructionSent;
 - event EventHandler&lt;RobotStateChangedEventArgs&gt; RobotStateChanged;
 - event EventHandler&lt;RobotErrorEventArgs&gt; RobotErrorOccurred;
+- event EventHandler&lt;RobotResetEventArgs&gt; RobotResetOccurred;
 
 
 The robot will need some configuration, before it can be used (for example wiring to the serial port). It is recommended to use the RobotConfigurator class (just like shown in the example), as this will produce a fully configured robot, ready for use, which should be sufficient for most use cases.

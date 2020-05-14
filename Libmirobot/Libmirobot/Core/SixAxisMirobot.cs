@@ -25,7 +25,7 @@ namespace Libmirobot.Core
         public event EventHandler<RobotResetEventArgs>? RobotResetOccurred;
 
         private readonly bool delayInstructionUntilPreviousInstructionCompleted;
-        private readonly bool autoHomeAxes;
+        private bool autoHomeAxes;
 
         private readonly SixAxisRobotSetupParameters setupParameters;
 
@@ -378,32 +378,40 @@ namespace Libmirobot.Core
                 var queuedTelegram = this.TryGetQueuedTelegram();
                 if (queuedTelegram != null)
                 {
-                    var instructionIsMotionInstruction = this.setupParameters.AllInstructions.Any(x => x.UniqueIdentifier == queuedTelegram.InstructionIdentifier && x.IsMotionInstruction);
-                    if (instructionIsMotionInstruction)
+                    if (queuedTelegram is VirtualRobotTelegram virtualTelegram)
                     {
-                        this.lastSentMotionInstruction = queuedTelegram;
-                        if (queuedTelegram.RobotAngleTargetPositionModificator != null)
-                        {
-                            this.angleModeTargetPosition = queuedTelegram.RobotAngleTargetPositionModificator(RobotPositionParameter.FromRobotStatusUpdateAngle(this.lastRobotStatusUpdate));
-                        }
-                        if (queuedTelegram.RobotCartesianTargetPositionModificator != null)
-                        {
-                            this.cartesianModeTargetPosition = queuedTelegram.RobotCartesianTargetPositionModificator(RobotPositionParameter.FromRobotStatusUpdateCartesian(this.lastRobotStatusUpdate));
-                        }
+                        virtualTelegram.Execute();
+                        this.lastSentMotionInstruction = null;
                     }
                     else
                     {
-                        this.lastSentMotionInstruction = null;
-                    }
-
-                    this.SendTelegram(queuedTelegram);
-                    if (this.delayInstructionUntilPreviousInstructionCompleted)
-                    {
+                        var instructionIsMotionInstruction = this.setupParameters.AllInstructions.Any(x => x.UniqueIdentifier == queuedTelegram.InstructionIdentifier && x.IsMotionInstruction);
                         if (instructionIsMotionInstruction)
                         {
-                            this.readyToSendNewInstructionTelegram = false;
-                            this.timerTicksSinceStatusUpdate = 0;
-                            this.noStatusTelegramResponsePending = true;
+                            this.lastSentMotionInstruction = queuedTelegram;
+                            if (queuedTelegram.RobotAngleTargetPositionModificator != null)
+                            {
+                                this.angleModeTargetPosition = queuedTelegram.RobotAngleTargetPositionModificator(RobotPositionParameter.FromRobotStatusUpdateAngle(this.lastRobotStatusUpdate));
+                            }
+                            if (queuedTelegram.RobotCartesianTargetPositionModificator != null)
+                            {
+                                this.cartesianModeTargetPosition = queuedTelegram.RobotCartesianTargetPositionModificator(RobotPositionParameter.FromRobotStatusUpdateCartesian(this.lastRobotStatusUpdate));
+                            }
+                        }
+                        else
+                        {
+                            this.lastSentMotionInstruction = null;
+                        }
+
+                        this.SendTelegram(queuedTelegram);
+                        if (this.delayInstructionUntilPreviousInstructionCompleted)
+                        {
+                            if (instructionIsMotionInstruction)
+                            {
+                                this.readyToSendNewInstructionTelegram = false;
+                                this.timerTicksSinceStatusUpdate = 0;
+                                this.noStatusTelegramResponsePending = true;
+                            }
                         }
                     }
                 }
@@ -603,6 +611,22 @@ namespace Libmirobot.Core
                 new SwitchAirPumpInstruction(),
                 new SwitchGripperInstruction()
                 ), delayInstructionUntilPreviousInstructionCompleted, timerTicksToUpdateStatusRequest, autoHomeAxes);
+        }
+
+        /// <inheritdoc/>
+        public void SetAutoHomingStatus(bool enabled, bool delayUntilCommandCompletion = true)
+        {
+            if (delayUntilCommandCompletion == false)
+            {
+                this.autoHomeAxes = enabled;
+                return;
+            }
+
+            lock (this.outboundTelegramQueue)
+            {
+                var robotAutoHomingChangeVirtualTelegram = new VirtualRobotTelegram($"V~SET_AUTO_HOMING_{enabled}", () => { this.autoHomeAxes = enabled; });
+                this.outboundTelegramQueue.Enqueue(robotAutoHomingChangeVirtualTelegram);
+            }
         }
     }
 }
