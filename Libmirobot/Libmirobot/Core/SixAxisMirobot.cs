@@ -461,7 +461,7 @@ namespace Libmirobot.Core
 
         private void SerialConnection_TelegramReceived(object sender, RobotTelegram e)
         {
-            if (e.Data.Contains("ALARM"))
+            if (e.Data.Contains("ALARM") || e.Data.Contains("Soft limit") || e.Data.Contains("Hard limit") || e.Data.Contains("error:") || e.Data.Contains("GOAL OUT OF WORKSPACE"))
             {
                 this.RobotErrorOccurred?.Invoke(this, new RobotErrorEventArgs(e.Data));
                 lock (this.statusFlagsLockObject)
@@ -488,15 +488,6 @@ namespace Libmirobot.Core
                 {
                     this.homingNeeded = true;
                 }
-            }
-            else if (e.Data.Contains("Soft limit") || e.Data.Contains("Hard limit"))
-            {
-                this.RobotErrorOccurred?.Invoke(this, new RobotErrorEventArgs(e.Data));
-                lock (this.statusFlagsLockObject)
-                {
-                    this.angleModeTargetPosition = null;
-                    this.cartesianModeTargetPosition = null;
-                }                
             }
 
             var responsedInstruction = this.setupParameters.AllInstructions.FirstOrDefault(x => x.UniqueIdentifier == e.InstructionIdentifier && x.CanProcessResponse(e.Data));
