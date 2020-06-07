@@ -482,7 +482,7 @@ namespace Libmirobot.Core
             }
             else if (e.Data.Contains("Qinnew Robot") || e.Data.Contains(" based on Grbl "))
             {
-                this.RobotResetOccurred?.Invoke(this, new RobotResetEventArgs());
+                this.RobotResetOccurred?.Invoke(this, new RobotResetEventArgs { Handled = this.autoHomeAxes });
                 lock (this.statusFlagsLockObject)
                 {
                     this.homingNeeded = true;
