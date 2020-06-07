@@ -19,7 +19,7 @@ namespace Libmirobot
         public static PreconfiguredRobot PreconfigureRobot(string comPortName)
         {
             var robot = SixAxisMirobot.CreateNew();
-            var telegramPort = new SerialConnection(comPortName, true);
+            var telegramPort = new SerialConnection(comPortName);
 
             robot.AttachConnection(telegramPort);
             telegramPort.AttachRobot(robot);

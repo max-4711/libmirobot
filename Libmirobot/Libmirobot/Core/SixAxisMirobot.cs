@@ -35,6 +35,7 @@ namespace Libmirobot.Core
         private int timerTicksSinceStatusUpdate = 0;
         private bool readyToSendNewInstructionTelegram = true;
         private bool noStatusTelegramResponsePending = true;
+        private DateTime? statusRequestSentTimestamp;
         private bool homingNeeded = false;
 
         private object statusFlagsLockObject = new object();
@@ -323,8 +324,16 @@ namespace Libmirobot.Core
                     {
                         this.timerTicksSinceStatusUpdate++;
                     }
+                    else
+                    {
+                        if (this.statusRequestSentTimestamp.HasValue && (DateTime.Now - this.statusRequestSentTimestamp.Value > TimeSpan.FromSeconds(15)))
+                        {
+                            //Status response suspiciously long awaited - sometimes the robot seem to ignore it(?!) -> send it again
+                            this.timerTicksSinceStatusUpdate = this.timerTicksToUpdateStatusRequest + 1; //Tricking the if block for the status requesting into "true-ing"
+                        }
+                    }
 
-                    if (this.timerTicksSinceStatusUpdate > this.timerTicksToUpdateStatusRequest)
+                    if (this.timerTicksSinceStatusUpdate > this.timerTicksToUpdateStatusRequest) //Request status
                     {
                         this.timerTicksSinceStatusUpdate = 0;
                         this.noStatusTelegramResponsePending = false;
@@ -332,6 +341,7 @@ namespace Libmirobot.Core
                         var instruction = this.setupParameters.RequestPositionInstruction;
                         var instructionCode = instruction.GenerateGCode(new EmptyInstructionParameter());
                         var telegram = new RobotTelegram(instruction.UniqueIdentifier, instructionCode);
+                        this.statusRequestSentTimestamp = DateTime.Now;
                         this.SendTelegram(telegram);
                     }
 

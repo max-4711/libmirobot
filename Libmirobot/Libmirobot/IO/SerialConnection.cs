@@ -27,8 +27,7 @@ namespace Libmirobot.IO
         /// Instances a new serial connection using the given port name.
         /// </summary>
         /// <param name="portName">Port name, which shall be used to connect to the hardware.</param>
-        /// <param name="useQueueingMode">If true, instructions will be sent to the hardware with a maximum frequency of 20 Hz and therefore queued at first.</param>
-        public SerialConnection(string portName, bool useQueueingMode = true)
+        public SerialConnection(string portName)
         {
             this.serialPort.PortName = portName;
             this.serialPort.BaudRate = 115200;
