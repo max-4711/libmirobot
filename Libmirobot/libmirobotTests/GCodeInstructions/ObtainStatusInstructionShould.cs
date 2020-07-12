@@ -8,12 +8,12 @@ namespace libmirobotTests.GCodeInstructions
     [TestClass]
     public class ObtainStatusInstructionShould
     {
-        const double angle1 = 50.1;
-        const double angle2 = 51.2;
-        const double angle3 = 52.3;
-        const double angle4 = 53.4;
-        const double angle5 = 54.5;
-        const double angle6 = 55.6;
+        const double angleA = 50.1;
+        const double angleB = 51.2;
+        const double angleC = 52.3;
+        const double angleX = 53.4;
+        const double angleY = 54.5;
+        const double angleZ = 55.6;
         const double slideRail = 56.7;
         const double xCoordinate = 15.1;
         const double yCoordinate = 16.2;
@@ -24,8 +24,8 @@ namespace libmirobotTests.GCodeInstructions
         const int pumpPwm = 500;
         const int gripperPwm = 50;
 
-        string sampleRobotIdleResponse = string.Format(CultureInfo.InvariantCulture, "<Idle,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angle1, angle2, angle3, slideRail, angle4, angle5, angle6, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
-        string sampleRobotBusyResponse = string.Format(CultureInfo.InvariantCulture, "<Run,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angle1, angle2, angle3, slideRail, angle4, angle5, angle6, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
+        string sampleRobotIdleResponse = string.Format(CultureInfo.InvariantCulture, "<Idle,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angleA, angleB, angleC, slideRail, angleX, angleY, angleZ, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
+        string sampleRobotBusyResponse = string.Format(CultureInfo.InvariantCulture, "<Run,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angleA, angleB, angleC, slideRail, angleX, angleY, angleZ, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
 
         [TestMethod]
         [Description("ObtainStatusInstruction should always generate '?' as g code instruction.")]
@@ -48,12 +48,12 @@ namespace libmirobotTests.GCodeInstructions
 
             Assert.IsTrue(testResult.HasData);
             Assert.IsTrue(testResult.IsIdle.Value);
-            Assert.AreEqual(angle1, testResult.Axis1Angle);
-            Assert.AreEqual(angle2, testResult.Axis2Angle);
-            Assert.AreEqual(angle3, testResult.Axis3Angle);
-            Assert.AreEqual(angle4, testResult.Axis4Angle);
-            Assert.AreEqual(angle5, testResult.Axis5Angle);
-            Assert.AreEqual(angle6, testResult.Axis6Angle);
+            Assert.AreEqual(angleX, testResult.Axis1Angle);
+            Assert.AreEqual(angleY, testResult.Axis2Angle);
+            Assert.AreEqual(angleZ, testResult.Axis3Angle);
+            Assert.AreEqual(angleA, testResult.Axis4Angle);
+            Assert.AreEqual(angleB, testResult.Axis5Angle);
+            Assert.AreEqual(angleC, testResult.Axis6Angle);
             Assert.AreEqual(slideRail, testResult.ExternalSlideRail);
             Assert.AreEqual(xCoordinate, testResult.XCoordinate);
             Assert.AreEqual(yCoordinate, testResult.YCoordinate);
@@ -75,12 +75,12 @@ namespace libmirobotTests.GCodeInstructions
 
             Assert.IsTrue(testResult.HasData);
             Assert.IsFalse(testResult.IsIdle.Value);
-            Assert.AreEqual(angle1, testResult.Axis1Angle);
-            Assert.AreEqual(angle2, testResult.Axis2Angle);
-            Assert.AreEqual(angle3, testResult.Axis3Angle);
-            Assert.AreEqual(angle4, testResult.Axis4Angle);
-            Assert.AreEqual(angle5, testResult.Axis5Angle);
-            Assert.AreEqual(angle6, testResult.Axis6Angle);
+            Assert.AreEqual(angleX, testResult.Axis1Angle);
+            Assert.AreEqual(angleY, testResult.Axis2Angle);
+            Assert.AreEqual(angleZ, testResult.Axis3Angle);
+            Assert.AreEqual(angleA, testResult.Axis4Angle);
+            Assert.AreEqual(angleB, testResult.Axis5Angle);
+            Assert.AreEqual(angleC, testResult.Axis6Angle);
             Assert.AreEqual(slideRail, testResult.ExternalSlideRail);
             Assert.AreEqual(xCoordinate, testResult.XCoordinate);
             Assert.AreEqual(yCoordinate, testResult.YCoordinate);

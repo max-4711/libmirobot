@@ -54,25 +54,25 @@ namespace Libmirobot.GCode.Instructions
                 }
 
                 var anglesCommaSeparated = colonSeparatedStrings[1].Split(',');
-                var angle1 = double.Parse(anglesCommaSeparated[0], CultureInfo.InvariantCulture.NumberFormat);
-                var angle2 = double.Parse(anglesCommaSeparated[1], CultureInfo.InvariantCulture.NumberFormat);
-                var angle3 = double.Parse(anglesCommaSeparated[2], CultureInfo.InvariantCulture.NumberFormat);
+                var angleA = double.Parse(anglesCommaSeparated[0], CultureInfo.InvariantCulture.NumberFormat);
+                var angleB = double.Parse(anglesCommaSeparated[1], CultureInfo.InvariantCulture.NumberFormat);
+                var angleC = double.Parse(anglesCommaSeparated[2], CultureInfo.InvariantCulture.NumberFormat);
                 double? slideRail = null;
-                double angle4;
-                double angle5;
-                double angle6;
+                double angleX;
+                double angleY;
+                double angleZ;
                 if (anglesCommaSeparated.Length == 8)
                 {
                     slideRail = double.Parse(anglesCommaSeparated[3], CultureInfo.InvariantCulture.NumberFormat);
-                    angle4 = double.Parse(anglesCommaSeparated[4], CultureInfo.InvariantCulture.NumberFormat);
-                    angle5 = double.Parse(anglesCommaSeparated[5], CultureInfo.InvariantCulture.NumberFormat);
-                    angle6 = double.Parse(anglesCommaSeparated[6], CultureInfo.InvariantCulture.NumberFormat);
+                    angleX = double.Parse(anglesCommaSeparated[4], CultureInfo.InvariantCulture.NumberFormat);
+                    angleY = double.Parse(anglesCommaSeparated[5], CultureInfo.InvariantCulture.NumberFormat);
+                    angleZ = double.Parse(anglesCommaSeparated[6], CultureInfo.InvariantCulture.NumberFormat);
                 }
                 else
                 {
-                    angle4 = double.Parse(anglesCommaSeparated[3], CultureInfo.InvariantCulture.NumberFormat);
-                    angle5 = double.Parse(anglesCommaSeparated[4], CultureInfo.InvariantCulture.NumberFormat);
-                    angle6 = double.Parse(anglesCommaSeparated[5], CultureInfo.InvariantCulture.NumberFormat);
+                    angleX = double.Parse(anglesCommaSeparated[3], CultureInfo.InvariantCulture.NumberFormat);
+                    angleY = double.Parse(anglesCommaSeparated[4], CultureInfo.InvariantCulture.NumberFormat);
+                    angleZ = double.Parse(anglesCommaSeparated[5], CultureInfo.InvariantCulture.NumberFormat);
                 }
 
                 var cartesianCommaSeparated = colonSeparatedStrings[2].Split(',');
@@ -90,15 +90,24 @@ namespace Libmirobot.GCode.Instructions
                 var gripperPwmString = gripperPwmCommaSeparated[0].TrimEnd('>');
                 var gripperPwm = int.Parse(gripperPwmString);
 
+
+                //Angle(ABCDXYZ):
+                //A = A4
+                //B = A5
+                //C = A6
+                //D = Slide rail
+                //X = A1
+                //Y = A2
+                //Z = A3
                 return new RobotStatusUpdate
                 {
                     IsIdle = isIdle,
-                    Axis1Angle = angle1,
-                    Axis2Angle = angle2,
-                    Axis3Angle = angle3,
-                    Axis4Angle = angle4,
-                    Axis5Angle = angle5,
-                    Axis6Angle = angle6,
+                    Axis1Angle = angleX,
+                    Axis2Angle = angleY,
+                    Axis3Angle = angleZ,
+                    Axis4Angle = angleA,
+                    Axis5Angle = angleB,
+                    Axis6Angle = angleC,
                     ExternalSlideRail = slideRail,
                     Pwm1 = pumpPwm,
                     Pwm2 = gripperPwm,
