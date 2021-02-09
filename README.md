@@ -3,9 +3,9 @@
 ![CI Build (.NET Core 3.1)](https://github.com/maxkde/libmirobot/workflows/.NET%20Core/badge.svg)
 
 ## Description
-Library to easily control the [WLKATA Mirobot](http://www.wlkata.com/site/index.html). No official project and not affiliated to WLKATA at all.
+Library to easily control the [WLKATA Mirobot](https://www.wlkata.com/products/wlkata-mirobot-introduction). No official project and not affiliated to WLKATA at all.
 
-G-code protocol over a serial connection is being used; official specification can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html).
+G-code protocol over a serial connection is being used; official specification can be downloaded from the [manufacturer's website](https://www.wlkata.com/support/download-center).
 
 ## License
 MIT License
@@ -67,7 +67,7 @@ Documentary comments, with detailed information for the purpose of every method,
 - "Main" Compile target is .NET Standard 2.1 (which means it is not limited to Windows!)
 - As .NET Standard 2.1 targeting libraries can be only referenced from .NET Core projects version 3.0 and up and isn't supported by the "classic" .NET Framework at all, a "legacy" .NET Standard 2.0 version is also offered
 - Documentary comments available for all methods and properties and included in the package
-- On Windows and macOS, a driver for the robot is needed (can be downloaded from the [manufacturer's website](http://www.wlkata.com/site/downloads.html))
+- On Windows and macOS, a driver for the robot is needed (can be downloaded from the [manufacturer's website](https://www.wlkata.com/support/download-center))
 
 
 ### Behavioural / Remarkable quirks / Special features
