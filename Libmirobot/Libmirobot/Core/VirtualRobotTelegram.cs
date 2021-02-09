@@ -7,7 +7,7 @@ namespace Libmirobot.Core
     /// </summary>
     public class VirtualRobotTelegram : RobotTelegram
     {
-        private Action telegramAction;
+        private readonly Action telegramAction;
 
         /// <summary>
         /// Instances a new virtual robot telegram.

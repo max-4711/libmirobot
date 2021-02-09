@@ -25,7 +25,7 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.4.4</Version>
+    <Version>1.4.5</Version>
     <Authors>max4711</Authors>
     <Company>Studio4711</Company>
     <Description>Inofficial library to control a WLKATA Mirobot. Not affiliated to WLKATA in any way.
@@ -35,19 +35,14 @@ Uses G-code protocol over a serial connection.</Description>
     <RepositoryUrl>https://github.com/maxkde/libmirobot</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>Mirobot, Six axis robot, WLKATA</PackageTags>
-    <PackageReleaseNotes>Version 1.4.4: Angles reported by hardware associated with wrong axes
+    <PackageReleaseNotes>
+Version 1.4.5: Neither functional changes nor bugfixes - just some code cleanup.
+Version 1.4.4: Angles reported by hardware associated with wrong axes
 Version 1.4.3: Added "Handled" property to ResetEvent (-&gt;homing operation already requested or further action required?)
 Version 1.4.2: Added detection for the robot ignoring status requests and re-sending them after 15 seconds
 Version 1.4.1: Added detection for more possible errors reported by the robot
 Version 1.4.0: Added possibility to enable or disable auto homing after robot setup
-Version 1.3.2: Expose events for hardware errors and hardware resets from robot to preconfigured robot as well
-Version 1.3.1: Fixed possible stack overflow and some timing issues with the auto-home functionality
-Version 1.3.0: Added detection for robot resets and option to auto-home robot
-Version 1.2.4: Added options to recover from robot errors
-Version 1.2.3: Added event for robot errors and added default parameters to some methods
-Version 1.2.2: Fixed multithreading bugs and made some 'adjustments to reality'
-Version 1.2.1: Fixed multiple bugs which could prevent instructions from being sent to the robot
-Version 1.2.0: Added support for .NET Standard 2.0</PackageReleaseNotes>
+</PackageReleaseNotes>
     <AssemblyVersion>1.4.4.0</AssemblyVersion>
     <FileVersion>1.4.4.0</FileVersion>
   </PropertyGroup>

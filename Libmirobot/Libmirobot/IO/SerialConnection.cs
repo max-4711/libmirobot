@@ -17,7 +17,7 @@ namespace Libmirobot.IO
         /// <inheritdoc/>
         public event EventHandler<RobotTelegram>? TelegramSent;
 
-        private SerialPort serialPort = new SerialPort();
+        private readonly SerialPort serialPort = new SerialPort();
 
         bool isConnecting = false;
         bool isConnected = false;

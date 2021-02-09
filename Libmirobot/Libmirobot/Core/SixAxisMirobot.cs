@@ -4,7 +4,6 @@ using Libmirobot.GCode.Instructions;
 using Libmirobot.IO;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Timers;
 
@@ -30,15 +29,15 @@ namespace Libmirobot.Core
         private readonly SixAxisRobotSetupParameters setupParameters;
 
         private readonly int timerTicksToUpdateStatusRequest;
-        private Timer telegramSendTimer = new Timer(50); //Mirobot reportedly struggles with receiving instructions in a higher frequency than 20 Hz: http://discuz.wlkata.com/forum.php?mod=viewthread&tid=8&extra=page%3D1
-        private Queue<RobotTelegram> outboundTelegramQueue = new Queue<RobotTelegram>();
+        private readonly Timer telegramSendTimer = new Timer(50); //Mirobot reportedly struggles with receiving instructions in a higher frequency than 20 Hz: http://discuz.wlkata.com/forum.php?mod=viewthread&tid=8&extra=page%3D1
+        private readonly Queue<RobotTelegram> outboundTelegramQueue = new Queue<RobotTelegram>();
         private int timerTicksSinceStatusUpdate = 0;
         private bool readyToSendNewInstructionTelegram = true;
         private bool noStatusTelegramResponsePending = true;
         private DateTime? statusRequestSentTimestamp;
         private bool homingNeeded = false;
 
-        private object statusFlagsLockObject = new object();
+        private readonly object statusFlagsLockObject = new object();
 
         private RobotStatusUpdate? lastRobotStatusUpdate = null;
         private RobotPositionParameter? angleModeTargetPosition = null;
@@ -64,10 +63,10 @@ namespace Libmirobot.Core
 
             var instructionCode = homingInstruction.GenerateGCode(new EmptyInstructionParameter());
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> positionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            static RobotPositionParameter? positionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 return null;
-            };
+            }
 
             this.QueueInstruction(instructionCode, homingInstruction.UniqueIdentifier, positionModificator, positionModificator);
         }
@@ -88,7 +87,7 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> angleTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            RobotPositionParameter? angleTargetPositionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 if (oldTargetPosition == null)
                     return null;
@@ -102,12 +101,12 @@ namespace Libmirobot.Core
                     PositioningParameter5 = oldTargetPosition.PositioningParameter5 + axis5,
                     PositioningParameter6 = oldTargetPosition.PositioningParameter6 + axis6
                 };
-            };
+            }
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> cartesianTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            static RobotPositionParameter? cartesianTargetPositionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 return null;
-            };
+            }
 
             this.QueueInstruction(instructionCode, axisIncrementInstruction.UniqueIdentifier, angleTargetPositionModificator, cartesianTargetPositionModificator);
         }
@@ -128,7 +127,7 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> cartesianTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            RobotPositionParameter? cartesianTargetPositionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 if (oldTargetPosition == null)
                     return null;
@@ -142,12 +141,12 @@ namespace Libmirobot.Core
                     PositioningParameter5 = oldTargetPosition.PositioningParameter5 + yRotationIncrement,
                     PositioningParameter6 = oldTargetPosition.PositioningParameter6 + zRotationIncrement
                 };
-            };
+            }
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> angleTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            RobotPositionParameter? angleTargetPositionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 return null;
-            };
+            }
 
             this.QueueInstruction(instructionCode, cartesianIncrementInstruction.UniqueIdentifier, angleTargetPositionModificator, cartesianTargetPositionModificator);
         }
@@ -168,7 +167,7 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> angleTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            RobotPositionParameter? angleTargetPositionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 return new RobotPositionParameter
                 {
@@ -179,12 +178,12 @@ namespace Libmirobot.Core
                     PositioningParameter5 = axis5,
                     PositioningParameter6 = axis6
                 };
-            };
+            }
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> cartesianTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            RobotPositionParameter? cartesianTargetPositionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 return null;
-            };
+            }
 
             this.QueueInstruction(instructionCode, axisMoveInstruction.UniqueIdentifier, angleTargetPositionModificator, cartesianTargetPositionModificator);
         }
@@ -205,7 +204,7 @@ namespace Libmirobot.Core
                 Speed = speed
             });
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> cartesianTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            RobotPositionParameter? cartesianTargetPositionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 return new RobotPositionParameter
                 {
@@ -216,12 +215,12 @@ namespace Libmirobot.Core
                     PositioningParameter5 = yRotation,
                     PositioningParameter6 = zRotation
                 };
-            };
+            }
 
-            Func<RobotPositionParameter?, RobotPositionParameter?> angleTargetPositionModificator = (RobotPositionParameter? oldTargetPosition) =>
+            RobotPositionParameter? angleTargetPositionModificator(RobotPositionParameter? oldTargetPosition)
             {
                 return null;
-            };
+            }
 
             this.QueueInstruction(instructionCode, cartesianMoveInstruction.UniqueIdentifier, angleTargetPositionModificator, cartesianTargetPositionModificator);
         }
@@ -534,9 +533,11 @@ namespace Libmirobot.Core
 
         private void QueueInstruction(string instruction, string instructionIdentifier, Func<RobotPositionParameter?, RobotPositionParameter?>? robotAngleTargetPositionModificator, Func<RobotPositionParameter?, RobotPositionParameter?>? robotCartesianTargetPositionModificator)
         {
-            var telegram = new RobotTelegram(instructionIdentifier, instruction);
-            telegram.RobotAngleTargetPositionModificator = robotAngleTargetPositionModificator;
-            telegram.RobotCartesianTargetPositionModificator = robotCartesianTargetPositionModificator;
+            var telegram = new RobotTelegram(instructionIdentifier, instruction)
+            {
+                RobotAngleTargetPositionModificator = robotAngleTargetPositionModificator,
+                RobotCartesianTargetPositionModificator = robotCartesianTargetPositionModificator
+            };
 
             lock (this.outboundTelegramQueue)
             {

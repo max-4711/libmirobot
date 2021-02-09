@@ -24,8 +24,8 @@ namespace libmirobotTests.GCodeInstructions
         const int pumpPwm = 500;
         const int gripperPwm = 50;
 
-        string sampleRobotIdleResponse = string.Format(CultureInfo.InvariantCulture, "<Idle,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angleA, angleB, angleC, slideRail, angleX, angleY, angleZ, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
-        string sampleRobotBusyResponse = string.Format(CultureInfo.InvariantCulture, "<Run,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angleA, angleB, angleC, slideRail, angleX, angleY, angleZ, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
+        readonly string sampleRobotIdleResponse = string.Format(CultureInfo.InvariantCulture, "<Idle,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angleA, angleB, angleC, slideRail, angleX, angleY, angleZ, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
+        readonly string sampleRobotBusyResponse = string.Format(CultureInfo.InvariantCulture, "<Run,Angle(ABCDXYZ):{0},{1},{2},{3},{4},{5},{6},Cartesian coordinate(XYZRxRyRz):{7},{8},{9},{10},{11},{12},Pump PWM:{13},Valve PWM:{14},Motion_MODE:0>", angleA, angleB, angleC, slideRail, angleX, angleY, angleZ, xCoordinate, yCoordinate, zCoordinate, xRotation, yRotation, zRotation, pumpPwm, gripperPwm);
 
         [TestMethod]
         [Description("ObtainStatusInstruction should always generate '?' as g code instruction.")]
